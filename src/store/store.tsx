@@ -54,6 +54,7 @@ interface ScheduleStore {
   scheduleToExcel: () => void;
   excelToSchedule: (file: RcFile) => void;
   setSelected: (selectedDay: Array<number>, night?: boolean) => void;
+  setWorkerList: (Employees: [Employee[], Employee[]]) => void;
 }
 
 const useSchedule = create<ScheduleStore>((set, get) => {
@@ -557,6 +558,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       set(
         night ? { selectedNight: selectedDay } : { selectedDay: selectedDay },
       ),
+    setWorkerList: (emp) => set({ dayWorker: emp[0], nightWorker: emp[1] }),
     scheduleToExcel: async () => {
       const {
         nightSchedule,

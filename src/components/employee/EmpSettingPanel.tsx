@@ -9,8 +9,15 @@ import EmployeeCard from "./EmployeeCard.tsx";
 import EmployeeAddCard from "./EmployeeAddCard.tsx";
 import { useNavigate } from "react-router-dom";
 import { useCallback } from "react";
+import { useLocalStorage } from "@reactuses/core";
+import Employee from "../../interface/employee.ts";
 
 const EmpSettingPanel = () => {
+  const [worker, setWorker] = useLocalStorage<[Employee[], Employee[]]>(
+    "recentDayWorker",
+    [[], []],
+  );
+
   const navigate = useNavigate();
 
   const {
@@ -19,7 +26,7 @@ const EmpSettingPanel = () => {
     dayWorker,
     nightWorker,
     removeWorker,
-    scheduleToExcel,
+    setWorkerList,
     excelToSchedule,
   } = useSchedule();
   const [form] = useForm();
@@ -41,14 +48,16 @@ const EmpSettingPanel = () => {
           onOk: async () => {
             init(v.date, v.numRest, v.group);
             navigate("/schedule");
+            setWorker([dayWorker, nightWorker]);
           },
         });
         return;
       }
       init(v.date, v.numRest, v.group);
       navigate("/schedule");
+      setWorker([dayWorker, nightWorker]);
     },
-    [],
+    [dayWorker, nightWorker],
   );
 
   return (
@@ -110,7 +119,12 @@ const EmpSettingPanel = () => {
           <Flex flexDir={"column"} gap={4}>
             <Flex flexDirection={"column"} gap={2}>
               <Text fontWeight={"bold"}>주간 근무자</Text>
-              <Flex alignItems={"center"} gap={2} overflowX={"scroll"}>
+              <Flex
+                alignItems={"center"}
+                gap={2}
+                overflowX={"scroll"}
+                scrollbar={"hidden"}
+              >
                 {dayWorker.map((emp, idx) => (
                   <EmployeeCard
                     employee={emp}
@@ -122,7 +136,12 @@ const EmpSettingPanel = () => {
             </Flex>
             <Flex flexDirection={"column"} gap={2}>
               <Text fontWeight={"bold"}>야간 근무자</Text>
-              <Flex alignItems={"center"} gap={2} overflowX={"scroll"}>
+              <Flex
+                alignItems={"center"}
+                gap={2}
+                overflowX={"scroll"}
+                scrollbar={"hidden"}
+              >
                 {nightWorker.map((emp, idx) => (
                   <EmployeeCard
                     night
@@ -133,6 +152,25 @@ const EmpSettingPanel = () => {
                 <EmployeeAddCard night />
               </Flex>
             </Flex>
+            <Text
+              cursor={"pointer"}
+              color={"purple.400"}
+              onClick={() => {
+                if (
+                  !worker ||
+                  (worker[0].length == 0 && worker[1].length == 0)
+                ) {
+                  Modal.error({
+                    title: "근무자 불러오기",
+                    content: "최근 근무자가 없습니다.",
+                  });
+                  return;
+                }
+                setWorkerList(worker);
+              }}
+            >
+              최근 근무자 불러오기
+            </Text>
           </Flex>
           <Flex gap={2} mt={3}>
             <Button flex={1} type={"submit"}>
