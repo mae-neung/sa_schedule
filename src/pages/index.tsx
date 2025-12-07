@@ -1,16 +1,7 @@
-import { Flex } from "@chakra-ui/react";
-import EmpSettingPanel from "../components/EmpSettingPanel.tsx";
-import SchedulePanel from "../components/SchedulePanel.tsx";
-import GroupPanel from "../components/GroupPanel.tsx";
+import EmpSettingPanel from "../components/employee/EmpSettingPanel.tsx";
 
 const IndexPage = () => {
-  return (
-    <Flex flexDirection={"column"} p={4}>
-      <EmpSettingPanel />
-      <SchedulePanel />
-      <GroupPanel />
-    </Flex>
-  );
+  return <EmpSettingPanel />;
 };
 
 export default IndexPage;

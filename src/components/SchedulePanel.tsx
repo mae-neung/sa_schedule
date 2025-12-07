@@ -36,6 +36,7 @@ const SchedulePanel = () => {
     setSelected,
     date,
     saveBase,
+    scheduleToExcel,
     loadBase,
     resetBase,
   } = useSchedule();
@@ -68,22 +69,29 @@ const SchedulePanel = () => {
     );
 
   return (
-    <>
-      <Flex width={"1080px"} mt={5} flexDirection={"column"}>
-        <Flex gap={2}>
-          {WORK_TYPES.map((type, idx) => (
-            <Button
-              bg={workType == idx ? "orange" : undefined}
-              onClick={() => setWorkType(idx)}
-            >
-              {type}
-            </Button>
-          ))}
-        </Flex>
-        <Flex p={2}>
+    <Center>
+      <Flex
+        p={4}
+        borderRadius={"2xl"}
+        border={"4px solid gray"}
+        width={"1080px"}
+        mt={5}
+        flexDirection={"column"}
+      >
+        <Flex justify={"space-between"} my={2}>
           <Text fontWeight={"bold"} fontSize={24}>
             {`${dayjs(date).format("YYYY년 MM월 시간표")} (휴무일 : ${numRest})`}
           </Text>
+          <Flex gap={2}>
+            {WORK_TYPES.map((type, idx) => (
+              <Button
+                bg={workType == idx ? "orange" : undefined}
+                onClick={() => setWorkType(idx)}
+              >
+                {type}
+              </Button>
+            ))}
+          </Flex>
         </Flex>
         <Flex>
           <Center width={"65px"}>날짜</Center>
@@ -225,6 +233,7 @@ const SchedulePanel = () => {
               리셋
             </Button>
           </Flex>
+          <Button onClick={() => scheduleToExcel()}>저장하기</Button>
         </Flex>
       </Flex>
       <Modal
@@ -243,7 +252,7 @@ const SchedulePanel = () => {
           </Button>
         </Flex>
       </Modal>
-    </>
+    </Center>
   );
 };
 
