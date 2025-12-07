@@ -4,21 +4,7 @@ import useSchedule from "../store/store.tsx";
 const GROUP_NAME = ["A", "B", "C", "D"];
 
 const GroupPanel = () => {
-  const { isInit, dayGroup, nightGroup, numDays, group } = useSchedule();
-
-  const temp = Array(numDays).fill(0);
-  const dayGroupTotal = [
-    temp.filter((_, idx) => (idx + group) % 4 === 0).length,
-    temp.filter((_, idx) => (idx + group) % 4 === 1).length,
-    temp.filter((_, idx) => (idx + group) % 4 === 2).length,
-    temp.filter((_, idx) => (idx + group) % 4 === 3).length,
-  ];
-  const nightGroupTotal = [
-    temp.filter((_, idx) => (idx + group - 1) % 4 === 0).length,
-    temp.filter((_, idx) => (idx + group - 1) % 4 === 1).length,
-    temp.filter((_, idx) => (idx + group - 1) % 4 === 2).length,
-    temp.filter((_, idx) => (idx + group - 1) % 4 === 3).length,
-  ];
+  const { isInit, dayGroup, nightGroup } = useSchedule();
 
   if (!isInit) return <></>;
 
@@ -36,7 +22,7 @@ const GroupPanel = () => {
           {dayGroup.map((count, idx) => (
             <Flex gap={2}>
               <Center p={2}>{GROUP_NAME[idx]}</Center>
-              <Center p={2}>{dayGroupTotal[idx] - count}</Center>
+              <Center p={2}>{count}</Center>
             </Flex>
           ))}
         </Flex>
@@ -50,7 +36,7 @@ const GroupPanel = () => {
           {nightGroup.map((count, idx) => (
             <Flex gap={2}>
               <Center p={2}>{GROUP_NAME[idx]}</Center>
-              <Center p={2}>{nightGroupTotal[idx] - count}</Center>
+              <Center p={2}>{count}</Center>
             </Flex>
           ))}
         </Flex>

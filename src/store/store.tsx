@@ -33,8 +33,8 @@ interface ScheduleStore {
     day: number,
     schedule: number[][],
     workCount: number[],
+    groupCount: number[],
     night?: boolean,
-    groupCount?: boolean,
   ) => void;
   changeSchedule: (
     emp: number,
@@ -83,6 +83,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const selectedNight = [];
 
       const weekday = target.day();
+      const numDays = target.daysInMonth();
 
       for (let i = 0; i < target.daysInMonth(); i++) {
         if ([5, 6].includes((weekday + i) % 7)) {
@@ -96,14 +97,10 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       set({
         date: date.format("YYYY-MM-01"),
         weekday: weekday,
-        numDays: target.daysInMonth(),
+        numDays: numDays,
         numRest: numRest,
-        daySchedule: Array(dayWorker.length).fill(
-          Array(date.daysInMonth()).fill(0),
-        ),
-        nightSchedule: Array(nightWorker.length).fill(
-          Array(date.daysInMonth()).fill(0),
-        ),
+        daySchedule: Array(dayWorker.length).fill(Array(numDays).fill(0)),
+        nightSchedule: Array(nightWorker.length).fill(Array(numDays).fill(0)),
         selectedDay: selectedDay,
         selectedNight: selectedNight,
         dayWorker: dayWorker,
@@ -135,13 +132,14 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
       const schedule = daySchedule.map((arr) => [...arr]);
       const workCount = [...dayWorkCount];
+      const group = [...dayGroup];
 
       for (const date of selectedDay)
-        applySchedule(date, schedule, workCount, false, true);
+        applySchedule(date, schedule, workCount, group);
 
       /* 1인 근무자 배치 */
       for (let day = 0; day < numDays; day++)
-        if (workCount[day] < 2) applySchedule(day, schedule, workCount);
+        if (workCount[day] < 2) applySchedule(day, schedule, workCount, group);
 
       if (allowTwo) {
         let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
@@ -150,7 +148,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         ranDate = ranDate.sort(() => Math.random() - 0.5);
 
         while (ranDate.length > 0) {
-          const minIndex = dayGroup
+          const minIndex = group
             .map((value, index) => ({ index, value }))
             .reduce((min, curr) => (curr.value < min.value ? curr : min)).index;
 
@@ -161,15 +159,15 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           });
 
           const select = ranDate.pop()!;
-          const count = schedule.filter((row) => row[select] === 1).length;
 
-          if (count < 2)
-            applySchedule(select, schedule, workCount, false, true);
+          if (workCount[select] < 2)
+            applySchedule(select, schedule, workCount, group);
         }
       }
 
       set({
         daySchedule: schedule,
+        dayGroup: group,
         dayWorkCount: workCount,
       });
     },
@@ -177,29 +175,31 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const {
         nightSchedule,
         nightWorkCount,
-        applySchedule,
         nightGroup,
+        applySchedule,
         numDays,
         selectedNight,
       } = get();
 
       const workCount = [...nightWorkCount];
       const schedule = nightSchedule.map((arr) => [...arr]);
+      const group = [...nightGroup];
 
       for (const date of selectedNight)
-        applySchedule(date, schedule, workCount, true, true);
+        applySchedule(date, schedule, workCount, group, true);
 
       for (let day = 0; day < numDays; day++)
-        if (workCount[day] < 2) applySchedule(day, schedule, workCount, true);
+        if (workCount[day] < 2)
+          applySchedule(day, schedule, workCount, group, true);
 
       // 랜덤 날짜 배열 생성 및 셔플
       let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
       ranDate = ranDate.sort(() => Math.random() - 0.5);
 
       while (ranDate.length > 0) {
-        const minIndex = nightGroup
+        const minIndex = group
           .map((value, index) => ({ index, value }))
-          .reduce((min, curr) => (curr.value < min.value ? curr : min)).index;
+          .reduce((min, curr) => (curr.value >= min.value ? curr : min)).index;
 
         ranDate.sort((a, b) => {
           const aKey = a % 4 === minIndex ? 0 : 1;
@@ -210,24 +210,17 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         const select = ranDate.pop()!;
 
         if (workCount[select] < 2)
-          applySchedule(select, schedule, workCount, true, true);
+          applySchedule(select, schedule, workCount, group, true);
       }
 
       set({
         nightSchedule: schedule,
+        nightGroup: group,
         nightWorkCount: workCount,
       });
     },
-    applySchedule(day, schedule, workCount, night, groupCount): void {
-      const {
-        nightWorker,
-        dayWorker,
-        nightGroup,
-        numDays,
-        group,
-        dayGroup,
-        numRest,
-      } = get();
+    applySchedule(day, schedule, workCount, groupCount, night): void {
+      const { nightWorker, dayWorker, numDays, group, numRest } = get();
 
       const numWorkers = night ? nightWorker.length : dayWorker.length;
       let candidates: number[] = Array.from(
@@ -281,11 +274,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[selected].workCount++;
           set({ nightWorker: worker });
 
-          if (groupCount) {
-            const gro = [...nightGroup];
-            gro[(group + day - 1) % 4]++;
-            set({ nightGroup: gro });
-          }
+          if (workCount[day] == 1) groupCount[(group + day) % 4]++;
+          if (workCount[day] == 2) groupCount[(group + day) % 4]--;
         }
       } else {
         /* 주간 로직 */
@@ -314,11 +304,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[selected].workCount++;
           workCount[day]++;
           set({ dayWorker: worker });
-          if (groupCount) {
-            const gro = [...dayGroup];
-            gro[(group + day) % 4]++;
-            set({ dayGroup: gro });
-          }
+          if (workCount[day] == 1) groupCount[(group + day) % 4]++;
+          if (workCount[day] == 2) groupCount[(group + day) % 4]--;
         }
       }
     },
@@ -356,12 +343,14 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         if (schedule[emp][day] == 1) {
           worker[emp].workCount--;
           dWorkCount[day]--;
-          if (dWorkCount[day] === 1) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 0) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 1) dGroup[dGroupIdx]++;
         }
         if (schedule[emp][day] == 2) {
           worker[emp].workCount--;
           nWorkCount[day]--;
-          if (nWorkCount[day] === 1) nGroup[nGroupIdx]--;
+          if (nWorkCount[day] === 0) nGroup[nGroupIdx]--;
+          if (nWorkCount[day] === 1) nGroup[nGroupIdx]++;
 
           if (day < numDays - 1) {
             schedule[emp][day + 1] = 0;
@@ -380,7 +369,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       if (workType === 1) {
         if (schedule[emp][day] == 2) {
           nWorkCount[day]--;
-          if (nWorkCount[day] === 1) nGroup[nGroupIdx]--;
+          if (nWorkCount[day] === 0) nGroup[nGroupIdx]--;
+          if (nWorkCount[day] === 1) nGroup[nGroupIdx]++;
           if (day < numDays - 1) {
             schedule[emp][day + 1] = 0;
             worker[emp].workCount--;
@@ -391,7 +381,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[emp].workCount++;
         schedule[emp][day] = 1;
         dWorkCount[day]++;
-        if (dWorkCount[day] === 2) dGroup[dGroupIdx]++;
+        if (dWorkCount[day] === 1) dGroup[dGroupIdx]++;
+        if (dWorkCount[day] === 2) dGroup[dGroupIdx]--;
       }
       /* 야간으로 변경하는 경우 */
       if (workType === 2) {
@@ -401,7 +392,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
         if (schedule[emp][day] == 1) {
           dWorkCount[day]--;
-          if (dWorkCount[day] === 1) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 0) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 1) dGroup[dGroupIdx]++;
         }
         if (schedule[emp][day] == 3) if (day !== 0) return false;
 
@@ -411,7 +403,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         }
         schedule[emp][day] = 2;
         nWorkCount[day]++;
-        if (nWorkCount[day] === 2) nGroup[nGroupIdx]++;
+        if (nWorkCount[day] === 1) nGroup[nGroupIdx]++;
+        if (nWorkCount[day] === 2) nGroup[nGroupIdx]--;
       }
       /* 비번으로 변경하는 경우 */
       if (workType === 3) {
@@ -421,13 +414,15 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
         if (schedule[emp][day] === 1) {
           dWorkCount[day]--;
-          if (dWorkCount[day] === 1) dGroup[(day + 1) % 4]--;
+          if (dWorkCount[day] === 0) dGroup[(day + 1) % 4]--;
+          if (dWorkCount[day] === 1) dGroup[(day + 1) % 4]++;
         }
         if (schedule[emp][day] == 2) {
           schedule[emp][day + 1] = 0;
           worker[emp].workCount--;
           nWorkCount[day]--;
-          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 0) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]++;
         }
         schedule[emp][day] = 3;
       }
@@ -437,11 +432,13 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[emp].workCount++;
         if (schedule[emp][day] === 1) {
           dWorkCount[day]--;
-          if (dWorkCount[day] === 1) dGroup[(day + 1) % 4]--;
+          if (dWorkCount[day] === 0) dGroup[(day + 1) % 4]--;
+          if (dWorkCount[day] === 1) dGroup[(day + 1) % 4]++;
         }
         if (schedule[emp][day] == 2) {
           nWorkCount[day]--;
-          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 0) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]++;
           if (day < numDays - 1) {
             schedule[emp][day + 1] = 0;
             worker[emp].workCount--;
@@ -455,11 +452,13 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         if (schedule[emp][day] == 1) {
           worker[emp].workCount--;
           dWorkCount[day]--;
-          if (dWorkCount[day] === 1) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 0) dGroup[dGroupIdx]--;
+          if (dWorkCount[day] === 1) dGroup[dGroupIdx]++;
         }
         if (schedule[emp][day] == 2) {
           nWorkCount[day]--;
-          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 0) nGroup[(day + 1) % 4]--;
+          if (nWorkCount[day] === 1) nGroup[(day + 1) % 4]++;
           worker[emp].workCount--;
           if (day < numDays - 1) {
             schedule[emp][day + 1] = 0;
@@ -607,25 +606,6 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const dayGroupCountDataRows = dayGroup.map((count) => count);
       const nightGroupCountDataRows = nightGroup.map((count) => count);
 
-      const temp = Array(numDays).fill(0);
-      const dayGroupTotal = [
-        temp.filter((_, idx) => (idx + group) % 4 === 0).length,
-        temp.filter((_, idx) => (idx + group) % 4 === 1).length,
-        temp.filter((_, idx) => (idx + group) % 4 === 2).length,
-        temp.filter((_, idx) => (idx + group) % 4 === 3).length,
-      ];
-      const nightGroupTotal = [
-        temp.filter((_, idx) => (idx + group - 1) % 4 === 0).length,
-        temp.filter((_, idx) => (idx + group - 1) % 4 === 1).length,
-        temp.filter((_, idx) => (idx + group - 1) % 4 === 2).length,
-        temp.filter((_, idx) => (idx + group - 1) % 4 === 3).length,
-      ];
-
-      const groupCountDataRows = [
-        dayGroup.map((g, idx) => dayGroupTotal[idx] - g),
-        nightGroup.map((g, idx) => nightGroupTotal[idx] - g),
-      ];
-
       const selectedDayDataRows = [...selectedDay];
       const selectedNightDataRows = [...selectedNight];
 
@@ -717,8 +697,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         scheduleSheet.getRow(6 + i).hidden = true;
 
       for (let i = 0; i < GROUP.length; i++) {
-        scheduleSheet.getCell(30 + i, 29).value = groupCountDataRows[0][i];
-        scheduleSheet.getCell(30 + i, 30).value = groupCountDataRows[1][i];
+        scheduleSheet.getCell(30 + i, 29).value = dayGroup[i];
+        scheduleSheet.getCell(30 + i, 30).value = nightGroup[i];
       }
 
       const buffer = await workbook.xlsx.writeBuffer();
