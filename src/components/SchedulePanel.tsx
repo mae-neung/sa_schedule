@@ -74,7 +74,7 @@ const SchedulePanel = () => {
         p={4}
         borderRadius={"2xl"}
         border={"4px solid gray"}
-        width={"1080px"}
+        w={"1080px"}
         mt={5}
         flexDirection={"column"}
       >
