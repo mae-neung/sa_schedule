@@ -78,7 +78,7 @@ const EmpSettingPanel = () => {
           bg={"bg"}
           border={"4px solid gray"}
           flexDirection={"column"}
-          w={"1080px"}
+          w={["24rem",null,"400px","600px","1080px"]}
           gap={2}
         >
           <Flex gap={2} flexDir={"column"}>

@@ -1,6 +1,6 @@
 import Employee from "../../interface/employee.ts";
 import { Flex, Text } from "@chakra-ui/react";
-import { CloseOutlined, FrownOutlined } from "@ant-design/icons";
+import { CloseOutlined, UserOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 
 interface EmployeeCardProps {
@@ -18,7 +18,7 @@ const EmployeeCard = ({ employee, onDelete, night }: EmployeeCardProps) => {
       border={"1px solid gray"}
     >
       <Flex w={"64px"} flexDir={"column"}>
-        <FrownOutlined style={{ fontSize: "84px" }} />
+        <UserOutlined  style={{ fontSize: "84px" }} />
         <Flex justify={"space-between"}>
           <Text
             fontWeight={"bold"}

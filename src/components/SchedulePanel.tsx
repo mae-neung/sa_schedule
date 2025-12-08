@@ -75,6 +75,8 @@ const SchedulePanel = () => {
         borderRadius={"2xl"}
         border={"4px solid gray"}
         w={"1080px"}
+        overflowX={"scroll"}
+        scrollbar={"hidden"}
         mt={5}
         flexDirection={"column"}
       >
