@@ -8,9 +8,9 @@
     "build": "vite build",
     "lint": "eslint",
     "preview": "vite preview",
-    "deploy": "gh-pages -d build"
+    "deploy": "vite build && gh-pages -d build"
   },
-  "homepage": "https://mae-neung.github.io/sa_schedule/",
+  "homepage": "https://mae-neung.github.io/sa_schedule",
   "dependencies": {
     "@ant-design/icons": "~5.6.1",
     "@chakra-ui/react": "^3.29.0",
