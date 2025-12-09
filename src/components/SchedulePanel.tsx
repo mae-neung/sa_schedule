@@ -1,6 +1,7 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react";
 import { Empty, Modal } from "antd";
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useSchedule from "../store/store.tsx";
 import {
   WORK_TYPES,
@@ -11,8 +12,10 @@ import {
   WEEKDAY,
 } from "../contant.ts";
 import dayjs from "dayjs";
+import { LeftOutlined } from "@ant-design/icons";
 
 const SchedulePanel = () => {
+  const navigate = useNavigate();
   const [workType, setWorkType] = useState(0);
 
   const {
@@ -81,9 +84,14 @@ const SchedulePanel = () => {
         flexDirection={"column"}
       >
         <Flex justify={"space-between"} my={2}>
-          <Text fontWeight={"bold"} fontSize={24}>
-            {`${dayjs(date).format("YYYY년 MM월 시간표")} (휴무일 : ${numRest})`}
-          </Text>
+          <Flex gap={2}>
+            <Flex cursor={"pointer"} onClick={() => navigate(-1)}>
+              <LeftOutlined />
+            </Flex>
+            <Text fontWeight={"bold"} fontSize={24}>
+              {`${dayjs(date).format("YYYY년 MM월 시간표")} (휴무일 : ${numRest})`}
+            </Text>
+          </Flex>
           <Flex gap={2}>
             {WORK_TYPES.map((type, idx) => (
               <Button

@@ -7,7 +7,7 @@ import { useForm } from "antd/es/form/Form";
 import useSchedule from "../../store/store.tsx";
 import EmployeeCard from "./EmployeeCard.tsx";
 import EmployeeAddCard from "./EmployeeAddCard.tsx";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import Employee from "../../interface/employee.ts";
@@ -44,7 +44,7 @@ const EmpSettingPanel = () => {
         Modal.confirm({
           title: "시간표 생성",
           content:
-            "이미 생성된 시간표가 있어요. 다시 생성하시겠습니까?\n(기존 내용은 삭제됩니다.)",
+            "이전에 생성된 시간표가 있어요. 다시 만들까요?\n(기존 내용은 삭제됩니다.)",
           onOk: async () => {
             init(v.date, v.numRest, v.group);
             navigate("/schedule");
@@ -78,7 +78,7 @@ const EmpSettingPanel = () => {
           bg={"bg"}
           border={"4px solid gray"}
           flexDirection={"column"}
-          w={["24rem",null,"400px","600px","1080px"]}
+          w={["24rem", null, "400px", "600px", "1080px"]}
           gap={2}
         >
           <Flex gap={2} flexDir={"column"}>
@@ -192,6 +192,13 @@ const EmpSettingPanel = () => {
               </Button>
             </Upload>
           </Flex>
+          {isInit && (
+            <Link to={"/schedule"} style={{ width: "100%" }}>
+              <Button bg={"purple.300"} color={"blackAlpha"} w={"100%"}>
+                최근 시간표 보기
+              </Button>
+            </Link>
+          )}
         </Flex>
       </Form>
     </Center>
