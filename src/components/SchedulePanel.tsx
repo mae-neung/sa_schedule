@@ -13,6 +13,7 @@ import {
 } from "../contant.ts";
 import dayjs from "dayjs";
 import { LeftOutlined } from "@ant-design/icons";
+import GroupPanel from "./GroupPanel.tsx";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ const SchedulePanel = () => {
   } = useSchedule();
 
   const [select, setSelect] = useState<number>();
+  const [showGroup, setShowGroup] = useState(false);
 
   const handleSelect = useCallback(
     (night?: boolean) => {
@@ -242,8 +244,11 @@ const SchedulePanel = () => {
             >
               리셋
             </Button>
+            <Button onClick={() => setShowGroup(true)}>
+              조별 근무 정보보기
+            </Button>
           </Flex>
-          <Button onClick={() => scheduleToExcel()}>저장하기</Button>
+          `<Button onClick={() => scheduleToExcel()}>저장하기</Button>
         </Flex>
       </Flex>
       <Modal
@@ -261,6 +266,14 @@ const SchedulePanel = () => {
             {selectedNight.includes(select!) ? "야간 삭제" : "야간 설정"}
           </Button>
         </Flex>
+      </Modal>
+      <Modal
+        open={showGroup}
+        title={"그룹정보 조회"}
+        footer={null}
+        onCancel={() => setShowGroup(false)}
+      >
+        <GroupPanel />
       </Modal>
     </Center>
   );
