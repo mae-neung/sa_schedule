@@ -10,6 +10,7 @@ import {
   GROUP_WORK_TYPE,
   BG_TYPES,
   WEEKDAY,
+  WORK_TYPES_LABEL,
 } from "../contant.ts";
 import dayjs from "dayjs";
 import { LeftOutlined } from "@ant-design/icons";
@@ -95,7 +96,7 @@ const SchedulePanel = () => {
             </Text>
           </Flex>
           <Flex gap={2}>
-            {WORK_TYPES.map((type, idx) => (
+            {WORK_TYPES_LABEL.map((type, idx) => (
               <Button
                 bg={workType == idx ? "orange" : undefined}
                 onClick={() => setWorkType(idx)}
@@ -106,13 +107,30 @@ const SchedulePanel = () => {
           </Flex>
         </Flex>
         <Flex>
+          <Center width={"65px"} />
+          {dayWorkCount.map((_, idx) => (
+            <Center
+              cursor={"pointer"}
+              onClick={() => setSelect(idx)}
+              p={1}
+              flex={1}
+            >
+              {selectedDay.includes(idx) && (
+                <Flex h={"8px"} bg={"orange.500"} flex={1} />
+              )}
+              {selectedNight.includes(idx) && (
+                <Flex h={"8px"} bg="blue.500" flex={1} />
+              )}
+            </Center>
+          ))}
+          <Flex p={1} flex={1} />
+        </Flex>
+        <Flex>
           <Center width={"65px"}>날짜</Center>
           {dayWorkCount.map((_, idx) => (
             <Center
               cursor={"pointer"}
               onClick={() => setSelect(idx)}
-              bg={selectedDay.includes(idx) ? "orange.100" : ""}
-              fontWeight={selectedNight.includes(idx) ? "bold" : ""}
               p={1}
               flex={1}
             >
@@ -128,8 +146,6 @@ const SchedulePanel = () => {
               cursor={"pointer"}
               onClick={() => setSelect(idx)}
               p={1}
-              bg={selectedDay.includes(idx) ? "orange.100" : ""}
-              fontWeight={selectedNight.includes(idx) ? "bold" : ""}
               flex={1}
             >
               {WEEKDAY[(weekday + idx) % 7]}
@@ -158,7 +174,7 @@ const SchedulePanel = () => {
                     });
                 }}
                 color={COLOR_TYPES[type]}
-                cursor={"cursor"}
+                cursor={"pointer"}
               >
                 {WORK_TYPES[type]}
               </Center>
@@ -176,6 +192,7 @@ const SchedulePanel = () => {
                 p={1}
                 flex={1}
                 bgColor={BG_TYPES[type]}
+                cursor={"pointer"}
                 onClick={() => changeSchedule(idx, day, workType, true)}
                 color={COLOR_TYPES[type]}
               >

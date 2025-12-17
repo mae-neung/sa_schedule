@@ -10,7 +10,7 @@ const GroupPanel = () => {
 
   return (
     <Flex flexDir={"column"} gap={2}>
-      <Text>조별 2인 근무횟수</Text>
+      <Text>조별 1인 근무횟수</Text>
       <Flex gap={2}>
         <Flex
           p={2}
