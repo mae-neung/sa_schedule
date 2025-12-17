@@ -616,7 +616,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const selectedDayDataRows = [...selectedDay];
       const selectedNightDataRows = [...selectedNight];
 
-      const filePath = "/frame.xlsx";
+      const filePath = `${import.meta.env.VITE_PUBLIC_URL}/frame.xlsx`;
 
       const response = await fetch(filePath);
       const arrayBuffer = await response.arrayBuffer();
