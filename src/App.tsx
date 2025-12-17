@@ -4,7 +4,7 @@ import Provider from "./components/Provider.tsx";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={`${import.meta.env.VITE_PUBLIC_URL}`}>
       <Provider>
         <RootRoute />
       </Provider>

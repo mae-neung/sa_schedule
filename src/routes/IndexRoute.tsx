@@ -15,7 +15,7 @@ const IndexRoute: RouteObject = {
       element: <SchedulePage />,
     },
     {
-      path: "*",
+      path: "/*",
       element: <Page404 />,
     },
   ],
