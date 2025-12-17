@@ -32,6 +32,7 @@ interface ScheduleStore {
   applySchedule: (
     day: number,
     schedule: number[][],
+    worker: Employee[],
     workCount: number[],
     groupCount: number[],
     night?: boolean,
@@ -120,6 +121,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
     makeDaySchedule(allowTwo): void {
       const {
         daySchedule,
+        dayWorker,
         applySchedule,
         numDays,
         selectedDay,
@@ -134,13 +136,15 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const schedule = daySchedule.map((arr) => [...arr]);
       const workCount = [...dayWorkCount];
       const group = [...dayGroup];
+      const worker = dayWorker.map((v) => ({ ...v }));
 
       for (const date of selectedDay)
-        applySchedule(date, schedule, workCount, group);
+        applySchedule(date, schedule, worker, workCount, group);
 
       /* 1인 근무자 배치 */
       for (let day = 0; day < numDays; day++)
-        if (workCount[day] < 2) applySchedule(day, schedule, workCount, group);
+        if (workCount[day] < 2)
+          applySchedule(day, schedule, worker, workCount, group);
 
       if (allowTwo) {
         let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
@@ -162,13 +166,14 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           const select = ranDate.pop()!;
 
           if (workCount[select] < 2)
-            applySchedule(select, schedule, workCount, group);
+            applySchedule(select, schedule, worker, workCount, group);
         }
       }
 
       set({
         daySchedule: schedule,
         dayGroup: group,
+        dayWorker: worker,
         dayWorkCount: workCount,
       });
     },
@@ -177,6 +182,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         nightSchedule,
         nightWorkCount,
         nightGroup,
+        nightWorker,
         applySchedule,
         numDays,
         selectedNight,
@@ -185,13 +191,14 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const workCount = [...nightWorkCount];
       const schedule = nightSchedule.map((arr) => [...arr]);
       const group = [...nightGroup];
+      const worker = nightWorker.map((v) => ({ ...v }));
 
       for (const date of selectedNight)
-        applySchedule(date, schedule, workCount, group, true);
+        applySchedule(date, schedule, worker, workCount, group, true);
 
       for (let day = 0; day < numDays; day++)
         if (workCount[day] < 2)
-          applySchedule(day, schedule, workCount, group, true);
+          applySchedule(day, schedule, worker, workCount, group, true);
 
       // 랜덤 날짜 배열 생성 및 셔플
       let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
@@ -211,19 +218,20 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         const select = ranDate.pop()!;
 
         if (workCount[select] < 2)
-          applySchedule(select, schedule, workCount, group, true);
+          applySchedule(select, schedule, worker, workCount, group, true);
       }
 
       set({
         nightSchedule: schedule,
         nightGroup: group,
+        nightWorker: worker,
         nightWorkCount: workCount,
       });
     },
-    applySchedule(day, schedule, workCount, groupCount, night): void {
-      const { nightWorker, dayWorker, numDays, group, numRest } = get();
+    applySchedule(day, schedule, worker, workCount, groupCount, night): void {
+      const { numDays, group, numRest } = get();
 
-      const numWorkers = night ? nightWorker.length : dayWorker.length;
+      const numWorkers = worker.length;
       let candidates: number[] = Array.from(
         { length: numWorkers },
         (_, i) => i,
@@ -232,7 +240,6 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
       if (night) {
         /* 야간 로직 */
-        const worker = [...nightWorker];
         if (workCount[day] === 0)
           candidates = candidates.filter((w) => !worker[w].isNew);
 
@@ -273,15 +280,12 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           }
           workCount[day]++;
           worker[selected].workCount++;
-          set({ nightWorker: worker });
 
           if (workCount[day] == 1) groupCount[(group + day) % 4]++;
           if (workCount[day] == 2) groupCount[(group + day) % 4]--;
         }
       } else {
         /* 주간 로직 */
-        const worker = [...dayWorker];
-
         if (workCount[day] === 0)
           candidates = candidates.filter((w) => !worker[w].isNew);
 
@@ -304,7 +308,6 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           schedule[selected][day] = 1;
           worker[selected].workCount++;
           workCount[day]++;
-          set({ dayWorker: worker });
           if (workCount[day] == 1) groupCount[(group + day) % 4]++;
           if (workCount[day] == 2) groupCount[(group + day) % 4]--;
         }
@@ -327,7 +330,9 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const schedule = night
         ? nightSchedule.map((arr) => [...arr])
         : daySchedule.map((arr) => [...arr]);
-      const worker = night ? [...nightWorker] : [...dayWorker];
+      const worker = night
+        ? nightWorker.map((v) => ({ ...v }))
+        : dayWorker.map((v) => ({ ...v }));
       const dGroup = [...dayGroup];
       const nGroup = [...nightGroup];
       const dWorkCount = [...dayWorkCount];
