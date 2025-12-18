@@ -668,6 +668,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
       const scheduleSheet = workbook.getWorksheet("시간표");
       if (!scheduleSheet) return;
+      scheduleSheet.getCell(1, 1).value =
+        dayjs(date).format("MM월 사회복무요원 근무계획");
       for (let i = 0; i < numDays; i++) {
         scheduleSheet.getCell(4, 3 + i).value = i + 1;
         scheduleSheet.getCell(5, 3 + i).value = WEEKDAY[(i + weekday) % 7];
@@ -675,6 +677,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           scheduleSheet.getCell(22 + j, 3 + i).value =
             GROUP_WORK_TYPE[(group + j + i) % 4];
         }
+        scheduleSheet.getCell(26, 3 + i).value = dayWorkCount[i];
+        scheduleSheet.getCell(27, 3 + i).value = nightWorkCount[i];
       }
 
       for (let i = 0; i < worker.length; i++) {
@@ -687,6 +691,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
         scheduleSheet.getCell(6 + i, 1).value = i + 1;
         scheduleSheet.getCell(6 + i, 2).value = worker[i].name;
+        scheduleSheet.getCell(6 + i, 35).value = numDays - worker[i].workCount;
 
         for (let j = 0; j < numDays; j++) {
           workSheet.getCell(j < 16 ? 4 : 9, 2 + (j % 16)).value = j + 1;
