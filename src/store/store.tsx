@@ -825,7 +825,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const selectedDaySheet = workbook.getWorksheet("selectedDay");
       if (!selectedDaySheet) return;
       const selectedDayRow = selectedDaySheet.getRow(1);
-      let count = 1;
+      let count = 0;
       let data = selectedDayRow.getCell(1).value;
       while (data) {
         data = selectedDayRow.getCell(count + 1).value;
@@ -838,7 +838,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       if (!selectedNightSheet) return;
       const selectedNightRow = selectedNightSheet.getRow(1);
       data = selectedNightRow.getCell(1).value;
-      count = 1;
+      count = 0;
       while (data) {
         data = selectedNightRow.getCell(count + 1).value;
         selectedNight.push(data as number);
