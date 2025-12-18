@@ -1,17 +1,11 @@
 import { Flex } from "@chakra-ui/react";
 
 interface NavigationProps {
-  onChangeTheme: () => void;
+  onChangeTheme?: () => void;
 }
 
-const Navigation = ({ onChangeTheme }: NavigationProps) => {
-  return (
-    <Flex align={"space-between"} m={4} p={4} onClick={() => onChangeTheme()}>
-      {/*<Text fontSize={"5xl"} fontWeight={"bold"}>*/}
-      {/*  PORTFOLIO*/}
-      {/*</Text>*/}
-    </Flex>
-  );
+const Navigation = ({}: NavigationProps) => {
+  return <Flex align={"space-between"} m={4} p={4}></Flex>;
 };
 
 export default Navigation;

@@ -1,17 +1,16 @@
-import { ChakraProvider, defaultSystem, Flex, Theme } from "@chakra-ui/react";
-import { ReactNode, useState } from "react";
-import Navigation from "./Navigation.tsx";
+import { ChakraProvider, defaultSystem, Center, Theme } from "@chakra-ui/react";
+import { ReactNode } from "react";
 
 const Provider = ({ children }: { children: ReactNode | ReactNode[] }) => {
-  const [dark, setDark] = useState(false);
+  // const [dark, setDark] = useState(false);
 
   return (
     <ChakraProvider value={defaultSystem}>
-      <Theme appearance={dark ? "dark" : "light"}>
-        <Flex flexDirection={"column"}>
-          <Navigation onChangeTheme={() => setDark((p) => !p)} />
+      <Theme appearance={"light"}>
+        <Center flexDirection={"column"} h={"100vh"}>
+          {/*<Navigation />*/}
           {children}
-        </Flex>
+        </Center>
       </Theme>
     </ChakraProvider>
   );

@@ -75,15 +75,12 @@ const SchedulePanel = () => {
     );
 
   return (
-    <Center>
+    <Center gap={4}>
       <Flex
         p={4}
         borderRadius={"2xl"}
         border={"4px solid gray"}
         w={"1080px"}
-        overflowX={"scroll"}
-        scrollbar={"hidden"}
-        mt={5}
         flexDirection={"column"}
       >
         <Flex justify={"space-between"} my={2}>
@@ -261,13 +258,24 @@ const SchedulePanel = () => {
             >
               리셋
             </Button>
-            <Button onClick={() => setShowGroup(true)}>
+            <Button onClick={() => setShowGroup((prev) => !prev)}>
               조별 근무 정보보기
             </Button>
           </Flex>
           `<Button onClick={() => scheduleToExcel()}>저장하기</Button>
         </Flex>
       </Flex>
+      {showGroup && (
+        <Flex
+          mt={4}
+          p={4}
+          borderRadius={"2xl"}
+          border={"4px solid gray"}
+          flexDirection={"column"}
+        >
+          <GroupPanel />
+        </Flex>
+      )}
       <Modal
         open={!!select}
         title={"2인 근무일 선택"}
@@ -283,14 +291,6 @@ const SchedulePanel = () => {
             {selectedNight.includes(select!) ? "야간 삭제" : "야간 설정"}
           </Button>
         </Flex>
-      </Modal>
-      <Modal
-        open={showGroup}
-        title={"그룹정보 조회"}
-        footer={null}
-        onCancel={() => setShowGroup(false)}
-      >
-        <GroupPanel />
       </Modal>
     </Center>
   );
