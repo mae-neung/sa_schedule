@@ -259,7 +259,7 @@ const SchedulePanel = () => {
               리셋
             </Button>
             <Button onClick={() => setShowGroup((prev) => !prev)}>
-              조별 근무 정보보기
+              상세정보
             </Button>
           </Flex>
           `<Button onClick={() => scheduleToExcel()}>저장하기</Button>
