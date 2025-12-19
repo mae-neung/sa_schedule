@@ -147,7 +147,6 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
       if (allowTwo) {
         let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
-
         // shuffle
         ranDate = ranDate.sort(() => Math.random() - 0.5);
 
@@ -282,7 +281,12 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           (w) => worker[w].workCount < targetWork - 1 && schedule[w][day] === 0,
         );
 
-        // shuffle
+        candidates = candidates.sort((a, b) =>
+          aloneCount[a] <= aloneCount[b] ? -1 : 1,
+        );
+        candidates = candidates.filter(
+          (v) => aloneCount[v] == aloneCount[candidates[0]],
+        );
         candidates = candidates.sort(() => Math.random() - 0.5);
 
         if (candidates.length > 0) {
@@ -324,7 +328,12 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           (w) => worker[w].workCount < targetWork && schedule[w][day] === 0,
         );
 
-        // shuffle
+        candidates = candidates.sort((a, b) =>
+          aloneCount[a] <= aloneCount[b] ? -1 : 1,
+        );
+        candidates = candidates.filter(
+          (v) => aloneCount[v] == aloneCount[candidates[0]],
+        );
         candidates = candidates.sort(() => Math.random() - 0.5);
 
         if (candidates.length > 0) {
