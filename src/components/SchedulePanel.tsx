@@ -2,7 +2,7 @@ import { Button, Center, Flex, Text } from "@chakra-ui/react";
 import { Empty, Modal } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useSchedule from "../store/store.tsx";
+import useSchedule from "../store/schedule.tsx";
 import {
   WORK_TYPES,
   COLOR_TYPES,
@@ -26,11 +26,9 @@ const SchedulePanel = () => {
     makeDaySchedule,
     dayWorkCount,
     nightWorkCount,
-    dayWorker,
-    nightWorker,
+    worker,
     changeSchedule,
-    daySchedule,
-    nightSchedule,
+    schedule,
     weekday,
     numDays,
     group,
@@ -150,57 +148,63 @@ const SchedulePanel = () => {
           ))}
           <Flex p={1} flex={1} />
         </Flex>
-        {daySchedule.map((emp, idx) => (
-          <Flex>
-            <Center
-              width={"65px"}
-              bg={dayWorker[idx].isNew ? "orange.100" : undefined}
-            >
-              {dayWorker[idx].name}
-            </Center>
-            {emp.map((type, day) => (
-              <Center
-                p={1}
-                flex={1}
-                bgColor={BG_TYPES[type]}
-                onClick={() => {
-                  if (!changeSchedule(idx, day, workType))
-                    Modal.error({
-                      content:
-                        "변경된 내용이 없거나, 해당 근무를 배치할 수 없습니다.",
-                    });
-                }}
-                color={COLOR_TYPES[type]}
-                cursor={"pointer"}
-              >
-                {WORK_TYPES[type]}
-              </Center>
-            ))}
-            <Center p={1} flex={1}>
-              {numDays - dayWorker[idx].workCount}
-            </Center>
-          </Flex>
-        ))}
-        {nightSchedule.map((emp, idx) => (
-          <Flex>
-            <Center width={"65px"}>{nightWorker[idx].name}</Center>
-            {emp.map((type, day) => (
-              <Center
-                p={1}
-                flex={1}
-                bgColor={BG_TYPES[type]}
-                cursor={"pointer"}
-                onClick={() => changeSchedule(idx, day, workType, true)}
-                color={COLOR_TYPES[type]}
-              >
-                {WORK_TYPES[type]}
-              </Center>
-            ))}
-            <Center p={1} flex={1}>
-              {numDays - nightWorker[idx].workCount}
-            </Center>
-          </Flex>
-        ))}
+        {schedule.map(
+          (emp, idx) =>
+            !worker[idx].isNight && (
+              <Flex>
+                <Center
+                  width={"65px"}
+                  bg={worker[idx].isNew ? "orange.100" : undefined}
+                >
+                  {worker[idx].name}
+                </Center>
+                {emp.map((type, day) => (
+                  <Center
+                    p={1}
+                    flex={1}
+                    bgColor={BG_TYPES[type]}
+                    onClick={() => {
+                      if (!changeSchedule(idx, day, workType))
+                        Modal.error({
+                          content:
+                            "변경된 내용이 없거나, 해당 근무를 배치할 수 없습니다.",
+                        });
+                    }}
+                    color={COLOR_TYPES[type]}
+                    cursor={"pointer"}
+                  >
+                    {WORK_TYPES[type]}
+                  </Center>
+                ))}
+                <Center p={1} flex={1}>
+                  {numDays - worker[idx].workCount}
+                </Center>
+              </Flex>
+            ),
+        )}
+        {schedule.map(
+          (emp, idx) =>
+            worker[idx].isNight && (
+              <Flex>
+                <Center width={"65px"}>{worker[idx].name}</Center>
+                {emp.map((type, day) => (
+                  <Center
+                    p={1}
+                    flex={1}
+                    bgColor={BG_TYPES[type]}
+                    cursor={"pointer"}
+                    onClick={() => changeSchedule(idx, day, workType, true)}
+                    color={COLOR_TYPES[type]}
+                  >
+                    {WORK_TYPES[type]}
+                  </Center>
+                ))}
+                <Center p={1} flex={1}>
+                  {numDays - worker[idx].workCount}
+                </Center>
+              </Flex>
+            ),
+        )}
         {GROUP.map((g, gIdx) => (
           <Flex bg={"yellow.100"}>
             <Center width={"65px"}>{g}조</Center>

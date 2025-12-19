@@ -6,10 +6,8 @@ interface Schedule {
   numDays: number;
   numRest: number;
   group: number;
-  daySchedule: Array<Array<number>>;
-  nightSchedule: Array<Array<number>>;
-  dayWorker: Array<Employee>;
-  nightWorker: Array<Employee>;
+  schedule: Array<Array<number>>;
+  worker: Array<Employee>;
   dayGroup: Array<number>;
   nightGroup: Array<number>;
   dayWorkCount: Array<number>;

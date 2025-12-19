@@ -1,5 +1,5 @@
 import { Center, Flex, Text } from "@chakra-ui/react";
-import useSchedule from "../store/store.tsx";
+import useSchedule from "../store/schedule.tsx";
 
 const GROUP_NAME = ["A", "B", "C", "D"];
 

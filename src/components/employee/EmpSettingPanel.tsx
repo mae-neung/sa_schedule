@@ -4,7 +4,7 @@ import { DatePicker, Form, InputNumber, Modal, Select, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
-import useSchedule from "../../store/store.tsx";
+import useSchedule from "../../store/schedule.tsx";
 import EmployeeCard from "./EmployeeCard.tsx";
 import EmployeeAddCard from "./EmployeeAddCard.tsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,27 +13,20 @@ import { useLocalStorage } from "@reactuses/core";
 import Employee from "../../interface/employee.ts";
 
 const EmpSettingPanel = () => {
-  const [worker, setWorker] = useLocalStorage<[Employee[], Employee[]]>(
-    "recentDayWorker",
-    [[], []],
-  );
+  const [wk, setWorker] = useLocalStorage<Employee[]>("recentDayWorker", []);
 
   const navigate = useNavigate();
 
-  const {
-    isInit,
-    init,
-    dayWorker,
-    nightWorker,
-    removeWorker,
-    setWorkerList,
-    excelToSchedule,
-  } = useSchedule();
+  const { isInit, init, worker, removeWorker, setWorkerList, excelToSchedule } =
+    useSchedule();
   const [form] = useForm();
 
   const handleSubmit = useCallback(
     (v: { date: dayjs.Dayjs; numRest: number; group: number }) => {
-      if (dayWorker.length == 0 || nightWorker.length == 0) {
+      if (
+        worker.filter((w) => !w.isNight).length == 0 ||
+        worker.filter((w) => w.isNight).length == 0
+      ) {
         Modal.error({
           title: "시간표 생성",
           content: "주야간 근무자가 최소 한명은 있어야해요.",
@@ -48,16 +41,16 @@ const EmpSettingPanel = () => {
           onOk: async () => {
             init(v.date, v.numRest, v.group);
             navigate("/schedule");
-            setWorker([dayWorker, nightWorker]);
+            setWorker(worker);
           },
         });
         return;
       }
       init(v.date, v.numRest, v.group);
       navigate("/schedule");
-      setWorker([dayWorker, nightWorker]);
+      setWorker(worker);
     },
-    [dayWorker, nightWorker],
+    [worker],
   );
 
   return (
@@ -125,12 +118,14 @@ const EmpSettingPanel = () => {
                 overflowX={"scroll"}
                 scrollbar={"hidden"}
               >
-                {dayWorker.map((emp, idx) => (
-                  <EmployeeCard
-                    employee={emp}
-                    onDelete={() => removeWorker(idx)}
-                  />
-                ))}
+                {worker
+                  .filter((w) => !w.isNight)
+                  .map((emp, idx) => (
+                    <EmployeeCard
+                      employee={emp}
+                      onDelete={() => removeWorker(idx)}
+                    />
+                  ))}
                 <EmployeeAddCard />
               </Flex>
             </Flex>
@@ -142,13 +137,15 @@ const EmpSettingPanel = () => {
                 overflowX={"scroll"}
                 scrollbar={"hidden"}
               >
-                {nightWorker.map((emp, idx) => (
-                  <EmployeeCard
-                    night
-                    employee={emp}
-                    onDelete={() => removeWorker(idx, true)}
-                  />
-                ))}
+                {worker
+                  .filter((w) => w.isNight)
+                  .map((emp, idx) => (
+                    <EmployeeCard
+                      night
+                      employee={emp}
+                      onDelete={() => removeWorker(idx, true)}
+                    />
+                  ))}
                 <EmployeeAddCard night />
               </Flex>
             </Flex>
@@ -156,17 +153,14 @@ const EmpSettingPanel = () => {
               cursor={"pointer"}
               color={"purple.400"}
               onClick={() => {
-                if (
-                  !worker ||
-                  (worker[0].length == 0 && worker[1].length == 0)
-                ) {
+                if (!wk) {
                   Modal.error({
                     title: "근무자 불러오기",
                     content: "최근 근무자가 없습니다.",
                   });
                   return;
                 }
-                setWorkerList(worker);
+                setWorkerList(wk);
               }}
             >
               최근 근무자 불러오기

@@ -3,7 +3,8 @@ import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { Modal, Form, Input, Checkbox } from "antd";
 import { useForm } from "antd/es/form/Form";
-import useSchedule from "../../store/store.tsx";
+import useSchedule from "../../store/schedule.tsx";
+import Employee from "../../interface/employee.ts";
 
 interface EmployeeAddCardProps {
   night?: boolean;
@@ -48,7 +49,12 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
               return;
             }
 
-            const emp = { name, workCount: 0, isNew };
+            const emp: Employee = {
+              name,
+              workCount: 0,
+              isNight: employee == "night",
+              isNew,
+            };
 
             setWorker(emp, employee == "night");
 
