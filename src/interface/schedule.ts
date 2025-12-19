@@ -8,6 +8,7 @@ interface Schedule {
   group: number;
   schedule: Array<Array<number>>;
   worker: Array<Employee>;
+  aloneCount: Array<number>;
   dayGroup: Array<number>;
   nightGroup: Array<number>;
   dayWorkCount: Array<number>;

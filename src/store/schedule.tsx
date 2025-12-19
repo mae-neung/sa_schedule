@@ -301,11 +301,10 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           }
           if (workCount[day] == 2) {
             groupCount[(group + day + 1) % 4]--;
-            aloneCount[selected]--;
-            const idx = worker.findIndex(
-              (_, idx) => schedule[idx][selected] === 2,
+            const target = worker.findIndex(
+              (_, idx) => idx !== selected && schedule[idx][day] === 2,
             );
-            if (idx > -1) aloneCount[idx]--;
+            if (target > -1) aloneCount[target]--;
           }
         }
       } else {
@@ -339,11 +338,10 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           }
           if (workCount[day] == 2) {
             groupCount[(group + day) % 4]--;
-            aloneCount[selected]--;
-            const idx = worker.findIndex(
-              (_, idx) => schedule[idx][selected] === 1,
+            const target = worker.findIndex(
+              (_, idx) => idx !== selected && schedule[idx][day] == 1,
             );
-            if (idx > -1) aloneCount[idx]--;
+            if (target > -1) aloneCount[target]--;
           }
         }
       }
@@ -538,12 +536,14 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker: wk,
           nightWorkCount: Array(numDays).fill(0),
           nightGroup: [0, 0, 0, 0],
+          aloneCount: Array(wk.length).fill(0),
         });
       else
         set({
           worker: wk,
           dayWorkCount: Array(numDays).fill(0),
           dayGroup: [0, 0, 0, 0],
+          aloneCount: Array(wk.length).fill(0),
         });
     },
     saveBase: () => set({ base: get().toJson() }),
@@ -597,6 +597,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         group,
         selectedNight,
         selectedDay,
+        aloneCount,
         dayGroup,
         dayWorkCount,
         base,
@@ -628,6 +629,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       );
       const dayWorkCountDataRows = dayWorkCount.map((count) => count);
       const nightWorkCountDataRows = nightWorkCount.map((count) => count);
+      const aloneCountDataRows = aloneCount.map((count) => count);
       const dayGroupCountDataRows = dayGroup.map((count) => count);
       const nightGroupCountDataRows = nightGroup.map((count) => count);
 
@@ -656,6 +658,9 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
       const nightWorkCountSheet = workbook.getWorksheet("nightWorkCount");
       nightWorkCountSheet?.addRows([nightWorkCountDataRows]);
+
+      const aloneCountSheet = workbook.getWorksheet("aloneCount");
+      aloneCountSheet?.addRows([aloneCountDataRows]);
 
       const dayGroupCountSheet = workbook.getWorksheet("dayGroupCount");
       dayGroupCountSheet?.addRows([dayGroupCountDataRows]);
@@ -790,6 +795,13 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       for (let i = 0; i < numDays; i++)
         nightWorkCount.push(nightWorkCountRow.getCell(i + 1).value as number);
 
+      const aloneCount = [];
+      const aloneCountSheet = workbook.getWorksheet("aloneCount");
+      if (!aloneCountSheet) return;
+      const aloneCountRow = aloneCountSheet.getRow(1);
+      for (let i = 0; i < numWorker; i++)
+        aloneCount.push(aloneCountRow.getCell(i + 1).value as number);
+
       const dayGroupCount = [];
       const dayGroupCountSheet = workbook.getWorksheet("dayGroupCount");
       if (!dayGroupCountSheet) return;
@@ -842,6 +854,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         group: defaultRow.getCell(5).value as number,
         schedule: schedule,
         worker: empList,
+        aloneCount: aloneCount,
         selectedDay: selectedDay,
         selectedNight: selectedNight,
         dayWorkCount: dayWorkCount,

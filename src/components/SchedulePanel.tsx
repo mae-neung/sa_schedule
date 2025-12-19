@@ -15,6 +15,7 @@ import {
 import dayjs from "dayjs";
 import { LeftOutlined } from "@ant-design/icons";
 import GroupPanel from "./GroupPanel.tsx";
+import PersonalPanel from "./PersonalPanel.tsx";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -278,6 +279,7 @@ const SchedulePanel = () => {
           flexDirection={"column"}
         >
           <GroupPanel />
+          <PersonalPanel />
         </Flex>
       )}
       <Modal
