@@ -17,7 +17,15 @@ const BG_TYPES = [
   "orange",
   "silver",
 ];
-const COLOR_TYPES = ["red", "black", "black", "black", "black", "red", "black"];
+const COLOR_TYPES = [
+  "red",
+  "black",
+  "silver",
+  "black",
+  "black",
+  "red",
+  "black",
+];
 const WEEKDAY = ["일", "월", "화", "수", "목", "금", "토"];
 const GROUP = ["A", "B", "C", "D"];
 const GROUP_WORK_TYPE = ["주", "야", "비", "휴"];

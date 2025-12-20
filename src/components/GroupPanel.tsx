@@ -3,7 +3,12 @@ import useSchedule from "../store/schedule.tsx";
 
 const GROUP_NAME = ["A", "B", "C", "D"];
 
-const GroupPanel = () => {
+interface GroupPanelProps {
+  group: number;
+  onClick: (idx: number) => void;
+}
+
+const GroupPanel = ({ group, onClick }: GroupPanelProps) => {
   const { isInit, dayGroup, nightGroup } = useSchedule();
 
   if (!isInit) return <></>;
@@ -13,7 +18,18 @@ const GroupPanel = () => {
       <Text fontWeight={"bold"}>조별 1인 근무횟수</Text>
       <Flex flexDir={"column"}>
         {GROUP_NAME.map((name, idx) => (
-          <Flex gap={4} py={2}>
+          <Flex
+            gap={4}
+            py={2}
+            cursor={"pointer"}
+            onClick={() => {
+              if (group === idx) {
+                onClick(-1);
+                return;
+              }
+              onClick(idx);
+            }}
+          >
             <Center fontWeight={"bold"}>{name}</Center>
             <Center fontWeight={"bold"} color={"orange.300"}>
               {dayGroup[idx]}

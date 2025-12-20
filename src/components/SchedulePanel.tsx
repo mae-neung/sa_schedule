@@ -47,6 +47,8 @@ const SchedulePanel = () => {
 
   const [select, setSelect] = useState<number>();
   const [showGroup, setShowGroup] = useState(false);
+  const [groupHighlight, setGroupHighlight] = useState<number>(-1);
+  const [workerHighlight, setWorkerHighlight] = useState<number>();
 
   const handleSelect = useCallback(
     (night?: boolean) => {
@@ -161,6 +163,22 @@ const SchedulePanel = () => {
                 </Center>
                 {emp.map((type, day) => (
                   <Center
+                    opacity={
+                      idx === workerHighlight
+                        ? dayWorkCount[day] === 1 &&
+                          [1, 2].includes(schedule[idx][day])
+                          ? undefined
+                          : "20%"
+                        : undefined
+                    }
+                    fontWeight={
+                      groupHighlight > 0 &&
+                      (group + 32 - day) % 4 == groupHighlight &&
+                      schedule[idx][day] === 1 &&
+                      dayWorkCount[day] === 1
+                        ? "bold"
+                        : undefined
+                    }
                     p={1}
                     flex={1}
                     bgColor={BG_TYPES[type]}
@@ -192,9 +210,30 @@ const SchedulePanel = () => {
                   <Center
                     p={1}
                     flex={1}
-                    bgColor={BG_TYPES[type]}
+                    opacity={
+                      idx === workerHighlight
+                        ? nightWorkCount[day] === 1 &&
+                          [1, 2].includes(schedule[idx][day])
+                          ? undefined
+                          : "20%"
+                        : undefined
+                    }
+                    bgColor={
+                      groupHighlight > -1 &&
+                      (group + 32 - day + 1) % 4 == groupHighlight &&
+                      schedule[idx][day] === 2 &&
+                      nightWorkCount[day] === 1
+                        ? "black"
+                        : BG_TYPES[type]
+                    }
                     cursor={"pointer"}
-                    onClick={() => changeSchedule(idx, day, workType, true)}
+                    onClick={() => {
+                      if (!changeSchedule(idx, day, workType, true))
+                        Modal.error({
+                          content:
+                            "변경된 내용이 없거나, 해당 근무를 배치할 수 없습니다.",
+                        });
+                    }}
                     color={COLOR_TYPES[type]}
                   >
                     {WORK_TYPES[type]}
@@ -278,8 +317,14 @@ const SchedulePanel = () => {
           border={"4px solid gray"}
           flexDirection={"column"}
         >
-          <GroupPanel />
-          <PersonalPanel />
+          <GroupPanel
+            group={groupHighlight}
+            onClick={(idx) => setGroupHighlight(idx)}
+          />
+          <PersonalPanel
+            emp={workerHighlight}
+            onClick={(idx) => setWorkerHighlight(idx)}
+          />
         </Flex>
       )}
       <Modal
