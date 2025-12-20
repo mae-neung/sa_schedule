@@ -300,11 +300,11 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[selected].workCount++;
 
           if (workCount[day] == 1) {
-            groupCount[(group + day + 1) % 4]++;
+            groupCount[(32 + group - day + 1) % 4]++;
             aloneCount[selected]++;
           }
           if (workCount[day] == 2) {
-            groupCount[(group + day + 1) % 4]--;
+            groupCount[(32 + group - day + 1) % 4]--;
             const target = worker.findIndex(
               (_, idx) => idx !== selected && schedule[idx][day] === 2,
             );
@@ -342,11 +342,11 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[selected].workCount++;
           workCount[day]++;
           if (workCount[day] == 1) {
-            groupCount[(group + day) % 4]++;
+            groupCount[(32 + group - day) % 4]++;
             aloneCount[selected]++;
           }
           if (workCount[day] == 2) {
-            groupCount[(group + day) % 4]--;
+            groupCount[(32 + group - day) % 4]--;
             const target = worker.findIndex(
               (_, idx) => idx !== selected && schedule[idx][day] == 1,
             );
@@ -376,8 +376,8 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       const nWorkCount = [...nightWorkCount];
       const aCount = [...aloneCount];
 
-      const dGroupIdx = (group + day) % 4;
-      const nGroupIdx = (group + day + 1) % 4;
+      const dGroupIdx = (32 + group - day) % 4;
+      const nGroupIdx = (32 + group - day + 1) % 4;
 
       /* 변경 사항이 없을 경우*/
       if (sch[emp][day] == workType) return false;
