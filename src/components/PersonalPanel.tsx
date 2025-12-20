@@ -11,14 +11,14 @@ const PersonalPanel = () => {
       <Text fontWeight={"bold"}>1인 근무횟수</Text>
       <Flex flexDir={"column"}>
         {aloneCount.map((count, idx) => (
-          <Flex gap={1} py={1}>
+          <Flex gap={2} py={1}>
             <Center
               fontWeight={"bold"}
               color={worker[idx].isNight ? "blue.300" : "orange.300"}
             >
               {worker[idx].name}
             </Center>
-            <Center>{count}</Center>
+            <Center fontWeight={"bold"}>{count}</Center>
           </Flex>
         ))}
       </Flex>

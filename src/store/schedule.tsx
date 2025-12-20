@@ -266,10 +266,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
         if (day + 1 < numDays)
           candidates = candidates.filter(
-            (w) =>
-              schedule[w][day + 1] !== 4 &&
-              schedule[w][day + 1] !== 2 &&
-              schedule[w][day + 1] !== 5,
+            (w) => ![2, 4, 5, 6].includes(schedule[w][day + 1]),
           );
 
         if (day + 4 < numDays)
@@ -616,6 +613,44 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         if (sch[emp][day] == 3) if (day !== 0) return false;
         if (sch[emp][day] == 4) wk[emp].workCount--;
         sch[emp][day] = 5;
+      }
+      /* 특별 휴가로 변경 */
+      if (workType === 6) {
+        if (sch[emp][day] == 0 || sch[emp][day] == 5) wk[emp].workCount++;
+        if (sch[emp][day] === 1) {
+          dWorkCount[day]--;
+          if (dWorkCount[day] === 0) {
+            dGroup[dGroupIdx]--;
+            aCount[emp]--;
+          }
+          if (dWorkCount[day] === 1) {
+            dGroup[dGroupIdx]++;
+            const target = worker.findIndex(
+              (_, idx) => idx != emp && sch[idx][day] == 1,
+            );
+            if (target > -1) aCount[target]++;
+          }
+        }
+        if (sch[emp][day] == 2) {
+          nWorkCount[day]--;
+          if (nWorkCount[day] === 0) {
+            nGroup[nGroupIdx]--;
+            aCount[emp]--;
+          }
+          if (nWorkCount[day] === 1) {
+            nGroup[nGroupIdx]++;
+            const target = worker.findIndex(
+              (_, idx) => idx != emp && sch[idx][day] == 2,
+            );
+            if (target > -1) aCount[target]++;
+          }
+          if (day < numDays - 1) {
+            sch[emp][day + 1] = 0;
+            wk[emp].workCount--;
+          }
+        }
+        if (sch[emp][day] == 3) if (day !== 0) return false;
+        sch[emp][day] = 6;
       }
 
       set(
