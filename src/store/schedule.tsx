@@ -857,6 +857,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         workSheet.getCell(2, 1).value = dayjs(date).format("YYYY년 MM월");
         workSheet.getCell(3, 19).value = dayjs(date).format(worker[i].name);
 
+        scheduleSheet.getCell(6 + i, 39).value = aloneCount[i];
         scheduleSheet.getCell(6 + i, 1).value = i + 1;
         scheduleSheet.getCell(6 + i, 2).value = worker[i].name;
         scheduleSheet.getCell(6 + i, 35).value = numDays - worker[i].workCount;
