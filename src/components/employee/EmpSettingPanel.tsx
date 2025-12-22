@@ -160,6 +160,9 @@ const EmpSettingPanel = () => {
                   });
                   return;
                 }
+                wk.map((w) => {
+                  w.workCount = 0;
+                });
                 setWorkerList(wk);
               }}
             >

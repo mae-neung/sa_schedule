@@ -250,7 +250,7 @@ const SchedulePanel = () => {
             <Center width={"65px"}>{g}조</Center>
             {dayWorkCount.map((_, idx) => (
               <Center p={1} flex={1}>
-                {GROUP_WORK_TYPE[(group + gIdx + idx) % 4]}
+                {GROUP_WORK_TYPE[(36 + group - gIdx - idx) % 4]}
               </Center>
             ))}
             <Flex p={1} flex={1} />
