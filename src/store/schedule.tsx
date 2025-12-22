@@ -78,6 +78,10 @@ const useSchedule = create<ScheduleStore>((set, get) => {
     init: (date, numRest, group) => {
       const { worker, resetWorkCount } = get();
 
+      const wk = [
+        ...worker.filter((e) => !e.isNight),
+        ...worker.filter((e) => e.isNight),
+      ];
       const target = date.set("date", 1);
 
       const selectedDay = [];
@@ -96,6 +100,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
       }
 
       set({
+        worker: wk,
         date: date.format("YYYY-MM-01"),
         weekday: weekday,
         numDays: numDays,
