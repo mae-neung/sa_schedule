@@ -859,9 +859,19 @@ const useSchedule = create<ScheduleStore>((set, get) => {
 
         scheduleSheet.getCell(6 + i, 39).value = aloneCount[i];
         scheduleSheet.getCell(6 + i, 1).value = i + 1;
-        scheduleSheet.getCell(6 + i, 2).value = worker[i].name;
+        const cell = scheduleSheet.getCell(6 + i, 2);
+        const color = worker[i].isNight ? "FFD9EAD3" : "FFFFD966";
+        cell.value = worker[i].name;
+        cell.style = {
+          ...cell.style,
+          fill: {
+            type: "pattern",
+            pattern: "solid",
+            bgColor: { argb: color },
+            fgColor: { argb: color },
+          },
+        };
         scheduleSheet.getCell(6 + i, 35).value = numDays - worker[i].workCount;
-
         for (let j = 0; j < numDays; j++) {
           workSheet.getCell(j < 16 ? 4 : 9, 2 + (j % 16)).value = j + 1;
           workSheet.getCell(j < 16 ? 5 : 10, 2 + (j % 16)).value =
