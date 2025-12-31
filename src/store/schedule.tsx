@@ -56,6 +56,7 @@ interface ScheduleStore {
   excelToSchedule: (file: RcFile) => void;
   setSelected: (selectedDay: Array<number>, night?: boolean) => void;
   setWorkerList: (Employees: Employee[]) => void;
+  changeGroup: (group: number) => void;
 }
 
 const useSchedule = create<ScheduleStore>((set, get) => {
@@ -82,6 +83,11 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         ...worker.filter((e) => !e.isNight),
         ...worker.filter((e) => e.isNight),
       ];
+
+      wk.map((w) => {
+        w.workCount = 0;
+      });
+
       const target = date.set("date", 1);
 
       const selectedDay = [];
@@ -302,11 +308,11 @@ const useSchedule = create<ScheduleStore>((set, get) => {
           worker[selected].workCount++;
 
           if (workCount[day] == 1) {
-            groupCount[(32 + group - day + 1) % 4]++;
+            groupCount[(32 + group - day - 1) % 4]++;
             aloneCount[selected]++;
           }
           if (workCount[day] == 2) {
-            groupCount[(32 + group - day + 1) % 4]--;
+            groupCount[(32 + group - day - 1) % 4]--;
             const target = worker.findIndex(
               (_, idx) => idx !== selected && schedule[idx][day] === 2,
             );
@@ -680,6 +686,16 @@ const useSchedule = create<ScheduleStore>((set, get) => {
             },
       );
       return true;
+    },
+    changeGroup(g): void {
+      const { group, dayGroup, nightGroup } = get();
+
+      const gap = Math.abs(group - g);
+
+      const dGroup = [...dayGroup.slice(gap), ...dayGroup.slice(0, gap)];
+      const nGroup = [...nightGroup.slice(gap), ...nightGroup.slice(0, gap)];
+
+      set({ group: g, dayGroup: dGroup, nightGroup: nGroup });
     },
     resetWorkCount(night?: boolean): void {
       const { worker, numDays } = get();

@@ -29,6 +29,7 @@ const SchedulePanel = () => {
     nightWorkCount,
     worker,
     changeSchedule,
+    changeGroup,
     schedule,
     weekday,
     numDays,
@@ -171,17 +172,16 @@ const SchedulePanel = () => {
                           : "20%"
                         : undefined
                     }
-                    fontWeight={
-                      groupHighlight > 0 &&
-                      (group + 32 - day) % 4 == groupHighlight &&
+                    bg={
+                      groupHighlight > -1 &&
+                      (32 + group - day) % 4 == groupHighlight &&
                       schedule[idx][day] === 1 &&
                       dayWorkCount[day] === 1
-                        ? "bold"
-                        : undefined
+                        ? "yellow.100"
+                        : BG_TYPES[type]
                     }
                     p={1}
                     flex={1}
-                    bgColor={BG_TYPES[type]}
                     onClick={() => {
                       if (!changeSchedule(idx, day, workType))
                         Modal.error({
@@ -220,7 +220,7 @@ const SchedulePanel = () => {
                     }
                     bgColor={
                       groupHighlight > -1 &&
-                      (group + 32 - day + 1) % 4 == groupHighlight &&
+                      (32 + group - day - 1) % 4 == groupHighlight &&
                       schedule[idx][day] === 2 &&
                       nightWorkCount[day] === 1
                         ? "black"
@@ -247,7 +247,13 @@ const SchedulePanel = () => {
         )}
         {GROUP.map((g, gIdx) => (
           <Flex bg={"yellow.100"}>
-            <Center width={"65px"}>{g}조</Center>
+            <Center
+              bg={group === gIdx ? "orange.100" : "yellow.100"}
+              width={"65px"}
+              onClick={() => changeGroup(gIdx)}
+            >
+              {g}조
+            </Center>
             {dayWorkCount.map((_, idx) => (
               <Center p={1} flex={1}>
                 {GROUP_WORK_TYPE[(36 + group - gIdx - idx) % 4]}

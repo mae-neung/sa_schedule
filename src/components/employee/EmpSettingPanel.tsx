@@ -40,15 +40,15 @@ const EmpSettingPanel = () => {
             "이전에 생성된 시간표가 있어요. 다시 만들까요?\n(기존 내용은 삭제됩니다.)",
           onOk: async () => {
             init(v.date, v.numRest, v.group);
-            navigate("/schedule");
             setWorker(worker);
+            navigate("/schedule");
           },
         });
         return;
       }
       init(v.date, v.numRest, v.group);
-      navigate("/schedule");
       setWorker(worker);
+      navigate("/schedule");
     },
     [worker],
   );
@@ -160,9 +160,6 @@ const EmpSettingPanel = () => {
                   });
                   return;
                 }
-                wk.map((w) => {
-                  w.workCount = 0;
-                });
                 setWorkerList(wk);
               }}
             >
