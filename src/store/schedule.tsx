@@ -859,7 +859,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         scheduleSheet.getCell(5, 3 + i).value = WEEKDAY[(i + weekday) % 7];
         for (let j = 0; j < GROUP.length; j++) {
           scheduleSheet.getCell(22 + j, 3 + i).value =
-            GROUP_WORK_TYPE[(group + j + i) % 4];
+            GROUP_WORK_TYPE[(32 + group - j - i) % 4];
         }
         scheduleSheet.getCell(26, 3 + i).value = dayWorkCount[i];
         scheduleSheet.getCell(27, 3 + i).value = nightWorkCount[i];
