@@ -13,7 +13,7 @@ import {
   WORK_TYPES_LABEL,
 } from "../contant.ts";
 import dayjs from "dayjs";
-import { LeftOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
+import { LeftOutlined } from "@ant-design/icons";
 import GroupPanel from "./GroupPanel.tsx";
 import PersonalPanel from "./PersonalPanel.tsx";
 import { useLocalStorage } from "@reactuses/core";
@@ -27,6 +27,7 @@ import makeNightSchedule from "../store/schedule/makeNightSchedule.ts";
 import resetBase from "../store/schedule/resetBase.ts";
 import toJson from "../store/schedule/toJson.ts";
 import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
+import initNextMonth from "../store/schedule/initNextMonth.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -42,7 +43,6 @@ const SchedulePanel = () => {
     weekday,
     numDays,
     group,
-    numRest,
     base,
     selectedDay,
     selectedNight,
@@ -94,14 +94,8 @@ const SchedulePanel = () => {
               <LeftOutlined />
             </Flex>
             <Text fontWeight={"bold"} fontSize={24}>
-              {`${dayjs(date).format("YYYY년 MM월 ")} (휴무일 : ${numRest})`}
+              {`${dayjs(date).format("YYYY년 MM월 시간표")}`}
             </Text>
-            <Center>
-              <PlusOutlined />
-            </Center>
-            <Center>
-              <MinusOutlined />
-            </Center>
           </Flex>
           <Flex gap={2}>
             {WORK_TYPES_LABEL.map((type, idx) => (
@@ -167,7 +161,8 @@ const SchedulePanel = () => {
               <Flex>
                 <Center
                   width={"65px"}
-                  bg={worker[idx].isNew ? "orange.100" : undefined}
+                  bg={"orange.100"}
+                  fontWeight={worker[idx].isNew ? "bold" : undefined}
                 >
                   {worker[idx].name}
                 </Center>
@@ -210,7 +205,13 @@ const SchedulePanel = () => {
           (emp, idx) =>
             worker[idx].isNight && (
               <Flex>
-                <Center width={"65px"}>{worker[idx].name}</Center>
+                <Center
+                  width={"65px"}
+                  bg={"blue.100"}
+                  fontWeight={worker[idx].isNew ? "bold" : undefined}
+                >
+                  {worker[idx].name}
+                </Center>
                 {emp.map((type, day) => (
                   <Center
                     p={1}
@@ -252,6 +253,7 @@ const SchedulePanel = () => {
               bg={group === gIdx ? "orange.100" : "yellow.100"}
               width={"65px"}
               onClick={() => changeGroup(gIdx)}
+              cursor={"pointer"}
             >
               {g}조
             </Center>
@@ -314,7 +316,20 @@ const SchedulePanel = () => {
             </Button>
           </Flex>
           <Flex gap={2}>
-            <Button>다음달 근무표 세팅</Button>
+            <Button
+              onClick={() => {
+                Modal.confirm({
+                  title: "다음달 근무표 생성",
+                  content:
+                    "현재 시간표를 기준으로 다음달 시간표를 생성합니다.\n기존에 적용된 내용은 다음달 시간표 저장시까지 유지됩니다.(최근 시간표 불러오기)",
+                  onOk: () => {
+                    initNextMonth();
+                  },
+                });
+              }}
+            >
+              다음달 근무표
+            </Button>
             <Button
               onClick={() => {
                 setRecentSchedule(toJson());
