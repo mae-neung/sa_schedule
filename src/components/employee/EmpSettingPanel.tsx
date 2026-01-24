@@ -11,11 +11,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import Employee from "../../interface/employee.ts";
-import Schedule from "../../interface/schedule.ts";
 
 const EmpSettingPanel = () => {
   const [wk, setWorker] = useLocalStorage<Employee[]>("recentDayWorker", []);
-  const [rs, _] = useLocalStorage<Schedule>("recentSchedule", null);
+  const [rs, _] = useLocalStorage("recentSchedule", "");
 
   const navigate = useNavigate();
 
@@ -26,7 +25,7 @@ const EmpSettingPanel = () => {
     removeWorker,
     setWorkerList,
     excelToSchedule,
-    setSchedule,
+    jsonToSchedule,
   } = useSchedule();
   const [form] = useForm();
 
@@ -197,7 +196,7 @@ const EmpSettingPanel = () => {
             <Button
               onClick={() => {
                 if (!rs) return;
-                setSchedule(rs);
+                jsonToSchedule(rs);
                 navigate("/schedule");
               }}
             >

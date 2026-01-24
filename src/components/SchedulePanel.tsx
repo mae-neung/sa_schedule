@@ -17,17 +17,11 @@ import { LeftOutlined } from "@ant-design/icons";
 import GroupPanel from "./GroupPanel.tsx";
 import PersonalPanel from "./PersonalPanel.tsx";
 import { useLocalStorage } from "@reactuses/core";
-import Schedule from "../interface/schedule.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
   const [workType, setWorkType] = useState(0);
-  const [_, setRecentSchedule] = useLocalStorage<Schedule>(
-    "recentSchedule",
-    null,
-  );
-
-  const scheduleStore = useSchedule();
+  const [_, setRecentSchedule] = useLocalStorage("recentSchedule", "");
 
   const {
     isInit,
@@ -52,7 +46,8 @@ const SchedulePanel = () => {
     scheduleToExcel,
     loadBase,
     resetBase,
-  } = scheduleStore;
+    toJson,
+  } = useSchedule();
 
   const [select, setSelect] = useState<number>();
   const [showGroup, setShowGroup] = useState(false);
@@ -323,8 +318,7 @@ const SchedulePanel = () => {
           `
           <Button
             onClick={() => {
-              console.log("어래", scheduleStore);
-              setRecentSchedule({ ...scheduleStore } as Schedule);
+              setRecentSchedule(toJson());
               scheduleToExcel();
             }}
           >
