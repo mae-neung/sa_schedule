@@ -1,5 +1,5 @@
 import { Center, Flex, Text } from "@chakra-ui/react";
-import useSchedule from "../store/schedule.tsx";
+import useScheduleStore from "../store/schedule";
 
 const GROUP_NAME = ["A", "B", "C", "D"];
 
@@ -9,7 +9,7 @@ interface GroupPanelProps {
 }
 
 const GroupPanel = ({ group, onClick }: GroupPanelProps) => {
-  const { isInit, dayGroup, nightGroup } = useSchedule();
+  const { isInit, dayGroup, nightGroup } = useScheduleStore();
 
   if (!isInit) return <></>;
 

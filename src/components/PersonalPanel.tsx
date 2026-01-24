@@ -1,5 +1,5 @@
 import { Center, Flex, Text } from "@chakra-ui/react";
-import useSchedule from "../store/schedule.tsx";
+import useScheduleStore from "../store/schedule";
 
 interface PersonalPanelProps {
   emp?: number;
@@ -7,7 +7,7 @@ interface PersonalPanelProps {
 }
 
 const PersonalPanel = ({ emp, onClick }: PersonalPanelProps) => {
-  const { isInit, aloneCount, worker } = useSchedule();
+  const { isInit, aloneCount, worker } = useScheduleStore();
 
   if (!isInit) return <></>;
 

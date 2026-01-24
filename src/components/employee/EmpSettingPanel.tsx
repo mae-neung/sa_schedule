@@ -4,13 +4,18 @@ import { DatePicker, Form, InputNumber, Modal, Select, Upload } from "antd";
 import { UploadOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
-import useSchedule from "../../store/schedule.tsx";
 import EmployeeCard from "./EmployeeCard.tsx";
 import EmployeeAddCard from "./EmployeeAddCard.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import Employee from "../../interface/employee.ts";
+import useScheduleStore from "../../store/schedule";
+import init from "../../store/schedule/init.ts";
+import removeWorker from "../../store/schedule/removeWorker.ts";
+import setWorkerList from "../../store/schedule/setWorkerList.ts";
+import jsonToSchedule from "../../store/schedule/jsonToSchedule.ts";
+import excelToSchedule from "../../store/schedule/excelToSchedule.ts";
 
 const EmpSettingPanel = () => {
   const [wk, setWorker] = useLocalStorage<Employee[]>("recentDayWorker", []);
@@ -18,15 +23,8 @@ const EmpSettingPanel = () => {
 
   const navigate = useNavigate();
 
-  const {
-    isInit,
-    init,
-    worker,
-    removeWorker,
-    setWorkerList,
-    excelToSchedule,
-    jsonToSchedule,
-  } = useSchedule();
+  const { isInit, worker } = useScheduleStore();
+
   const [form] = useForm();
 
   const handleSubmit = useCallback(
@@ -150,7 +148,7 @@ const EmpSettingPanel = () => {
                     <EmployeeCard
                       night
                       employee={emp}
-                      onDelete={() => removeWorker(idx, true)}
+                      onDelete={() => removeWorker(idx)}
                     />
                   ) : undefined,
                 )}

@@ -2,7 +2,7 @@ import { Button, Center, Flex, Text } from "@chakra-ui/react";
 import { Empty, Modal } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useSchedule from "../store/schedule.tsx";
+import useScheduleStore from "../store/schedule";
 import {
   WORK_TYPES,
   COLOR_TYPES,
@@ -13,10 +13,20 @@ import {
   WORK_TYPES_LABEL,
 } from "../contant.ts";
 import dayjs from "dayjs";
-import { LeftOutlined } from "@ant-design/icons";
+import { LeftOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import GroupPanel from "./GroupPanel.tsx";
 import PersonalPanel from "./PersonalPanel.tsx";
 import { useLocalStorage } from "@reactuses/core";
+import setSelected from "../store/schedule/setSelected.ts";
+import changeSchedule from "../store/schedule/changeSchedule.ts";
+import changeGroup from "../store/schedule/changeGroup.ts";
+import loadBase from "../store/schedule/loadBase.ts";
+import saveBase from "../store/schedule/saveBase.ts";
+import makeDaySchedule from "../store/schedule/makeDaySchedule.ts";
+import makeNightSchedule from "../store/schedule/makeNightSchedule.ts";
+import resetBase from "../store/schedule/resetBase.ts";
+import toJson from "../store/schedule/toJson.ts";
+import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -25,13 +35,9 @@ const SchedulePanel = () => {
 
   const {
     isInit,
-    makeNightSchedule,
-    makeDaySchedule,
     dayWorkCount,
     nightWorkCount,
     worker,
-    changeSchedule,
-    changeGroup,
     schedule,
     weekday,
     numDays,
@@ -40,14 +46,8 @@ const SchedulePanel = () => {
     base,
     selectedDay,
     selectedNight,
-    setSelected,
     date,
-    saveBase,
-    scheduleToExcel,
-    loadBase,
-    resetBase,
-    toJson,
-  } = useSchedule();
+  } = useScheduleStore();
 
   const [select, setSelect] = useState<number>();
   const [showGroup, setShowGroup] = useState(false);
@@ -94,8 +94,14 @@ const SchedulePanel = () => {
               <LeftOutlined />
             </Flex>
             <Text fontWeight={"bold"} fontSize={24}>
-              {`${dayjs(date).format("YYYY년 MM월 시간표")} (휴무일 : ${numRest})`}
+              {`${dayjs(date).format("YYYY년 MM월 ")} (휴무일 : ${numRest})`}
             </Text>
+            <Center>
+              <PlusOutlined />
+            </Center>
+            <Center>
+              <MinusOutlined />
+            </Center>
           </Flex>
           <Flex gap={2}>
             {WORK_TYPES_LABEL.map((type, idx) => (
@@ -186,11 +192,7 @@ const SchedulePanel = () => {
                     p={1}
                     flex={1}
                     onClick={() => {
-                      if (!changeSchedule(idx, day, workType))
-                        Modal.error({
-                          content:
-                            "변경된 내용이 없거나, 해당 근무를 배치할 수 없습니다.",
-                        });
+                      changeSchedule(idx, day, workType);
                     }}
                     color={COLOR_TYPES[type]}
                     cursor={"pointer"}
@@ -231,11 +233,7 @@ const SchedulePanel = () => {
                     }
                     cursor={"pointer"}
                     onClick={() => {
-                      if (!changeSchedule(idx, day, workType, true))
-                        Modal.error({
-                          content:
-                            "변경된 내용이 없거나, 해당 근무를 배치할 수 없습니다.",
-                        });
+                      changeSchedule(idx, day, workType, true);
                     }}
                     color={COLOR_TYPES[type]}
                   >
@@ -315,15 +313,17 @@ const SchedulePanel = () => {
               상세정보
             </Button>
           </Flex>
-          `
-          <Button
-            onClick={() => {
-              setRecentSchedule(toJson());
-              scheduleToExcel();
-            }}
-          >
-            저장하기
-          </Button>
+          <Flex gap={2}>
+            <Button>다음달 근무표 세팅</Button>
+            <Button
+              onClick={() => {
+                setRecentSchedule(toJson());
+                scheduleToExcel();
+              }}
+            >
+              저장하기
+            </Button>
+          </Flex>
         </Flex>
       </Flex>
       {showGroup && (
