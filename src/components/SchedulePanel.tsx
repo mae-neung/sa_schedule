@@ -126,6 +126,7 @@ const SchedulePanel = () => {
             </Center>
           ))}
           <Flex p={1} flex={1} />
+          <Flex p={1} flex={1} />
         </Flex>
         <Flex>
           <Center width={"65px"}>날짜</Center>
@@ -140,6 +141,7 @@ const SchedulePanel = () => {
             </Center>
           ))}
           <Flex p={1} flex={1} />
+          <Flex p={1} flex={1} />
         </Flex>
         <Flex>
           <Center width={"65px"}>요일</Center>
@@ -153,6 +155,7 @@ const SchedulePanel = () => {
               {WEEKDAY[(weekday + idx) % 7]}
             </Center>
           ))}
+          <Flex p={1} flex={1} />
           <Flex p={1} flex={1} />
         </Flex>
         {schedule.map(
@@ -197,6 +200,9 @@ const SchedulePanel = () => {
                 ))}
                 <Center p={1} flex={1}>
                   {numDays - worker[idx].workCount}
+                </Center>
+                <Center p={1} flex={1}>
+                  {worker[idx].targetWorkCount}
                 </Center>
               </Flex>
             ),
@@ -244,6 +250,9 @@ const SchedulePanel = () => {
                 <Center p={1} flex={1}>
                   {numDays - worker[idx].workCount}
                 </Center>
+                <Center p={1} flex={1}>
+                  {worker[idx].targetWorkCount}
+                </Center>
               </Flex>
             ),
         )}
@@ -263,6 +272,7 @@ const SchedulePanel = () => {
               </Center>
             ))}
             <Flex p={1} flex={1} />
+            <Flex p={1} flex={1} />
           </Flex>
         ))}
         <Flex>
@@ -273,6 +283,7 @@ const SchedulePanel = () => {
             </Center>
           ))}
           <Flex p={1} flex={1} />
+          <Flex p={1} flex={1} />
         </Flex>
         <Flex>
           <Center width={"65px"}>야간조</Center>
@@ -281,6 +292,7 @@ const SchedulePanel = () => {
               {count}
             </Center>
           ))}
+          <Flex p={1} flex={1} />
           <Flex p={1} flex={1} />
         </Flex>
         <Flex justify={"space-between"}>

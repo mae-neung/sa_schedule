@@ -1,7 +1,7 @@
 import { Center, Flex, Text, Button } from "@chakra-ui/react";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { Modal, Form, Input, Checkbox } from "antd";
+import { Modal, Form, Input, Checkbox, InputNumber } from "antd";
 import { useForm } from "antd/es/form/Form";
 import Employee from "../../interface/employee.ts";
 import setWorker from "../../store/schedule/setWorker.ts";
@@ -38,7 +38,15 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
       >
         <Form
           form={form}
-          onFinish={({ name, isNew }: { name: string; isNew?: boolean }) => {
+          onFinish={({
+            name,
+            isNew,
+            targetWorkCount,
+          }: {
+            name: string;
+            isNew?: boolean;
+            targetWorkCount: number;
+          }) => {
             if (name == "") {
               Modal.error({
                 title: "추가 오류",
@@ -50,6 +58,7 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
             const emp: Employee = {
               name,
               workCount: 0,
+              targetWorkCount,
               isNight: employee == "night",
               isNew,
             };
@@ -61,21 +70,24 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
           }}
           initialValues={{
             name: "",
+            targetWorkCount: 10,
           }}
         >
           <Flex flexDir={"column"} gap={2}>
-            <Center gap={2}>
-              <Flex width={"30px"}>
-                <Text>이름</Text>
-              </Flex>
+            <Flex flexDir={"column"} gap={2}>
+              <Text fontWeight={"bold"}>이름</Text>
               <Form.Item name={"name"} noStyle>
                 <Input />
               </Form.Item>
-            </Center>
-            <Flex gap={2}>
-              <Flex width={"30px"}>
-                <Text>신입</Text>
-              </Flex>
+            </Flex>
+            <Flex flexDir={"column"} gap={2}>
+              <Text fontWeight={"bold"}>목표 근무일</Text>
+              <Form.Item name={"targetWorkCount"} noStyle>
+                <InputNumber style={{ width: "100%" }} />
+              </Form.Item>
+            </Flex>
+            <Flex gap={2} py={2}>
+              <Text fontWeight={"bold"}>신입</Text>
               <Form.Item name={"isNew"} valuePropName={"checked"} noStyle>
                 <Checkbox />
               </Form.Item>
