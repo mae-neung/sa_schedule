@@ -1,7 +1,7 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react";
 
 import { DatePicker, Form, InputNumber, Modal, Select, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
 import useSchedule from "../../store/schedule.tsx";
@@ -11,14 +11,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import Employee from "../../interface/employee.ts";
+import Schedule from "../../interface/schedule.ts";
 
 const EmpSettingPanel = () => {
   const [wk, setWorker] = useLocalStorage<Employee[]>("recentDayWorker", []);
+  const [rs, _] = useLocalStorage<Schedule>("recentSchedule", null);
 
   const navigate = useNavigate();
 
-  const { isInit, init, worker, removeWorker, setWorkerList, excelToSchedule } =
-    useSchedule();
+  const {
+    isInit,
+    init,
+    worker,
+    removeWorker,
+    setWorkerList,
+    excelToSchedule,
+    setSchedule,
+  } = useSchedule();
   const [form] = useForm();
 
   const handleSubmit = useCallback(
@@ -118,14 +127,14 @@ const EmpSettingPanel = () => {
                 overflowX={"scroll"}
                 scrollbar={"hidden"}
               >
-                {worker
-                  .filter((w) => !w.isNight)
-                  .map((emp, idx) => (
+                {worker.map((emp, idx) =>
+                  emp.isNight ? undefined : (
                     <EmployeeCard
                       employee={emp}
                       onDelete={() => removeWorker(idx)}
                     />
-                  ))}
+                  ),
+                )}
                 <EmployeeAddCard />
               </Flex>
             </Flex>
@@ -137,15 +146,15 @@ const EmpSettingPanel = () => {
                 overflowX={"scroll"}
                 scrollbar={"hidden"}
               >
-                {worker
-                  .filter((w) => w.isNight)
-                  .map((emp, idx) => (
+                {worker.map((emp, idx) =>
+                  emp.isNight ? (
                     <EmployeeCard
                       night
                       employee={emp}
                       onDelete={() => removeWorker(idx, true)}
                     />
-                  ))}
+                  ) : undefined,
+                )}
                 <EmployeeAddCard night />
               </Flex>
             </Flex>
@@ -185,6 +194,15 @@ const EmpSettingPanel = () => {
                 <UploadOutlined />
               </Button>
             </Upload>
+            <Button
+              onClick={() => {
+                if (!rs) return;
+                setSchedule(rs);
+                navigate("/schedule");
+              }}
+            >
+              <ClockCircleOutlined />
+            </Button>
           </Flex>
           {isInit && (
             <Link to={"/schedule"} style={{ width: "100%" }}>

@@ -16,10 +16,18 @@ import dayjs from "dayjs";
 import { LeftOutlined } from "@ant-design/icons";
 import GroupPanel from "./GroupPanel.tsx";
 import PersonalPanel from "./PersonalPanel.tsx";
+import { useLocalStorage } from "@reactuses/core";
+import Schedule from "../interface/schedule.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
   const [workType, setWorkType] = useState(0);
+  const [_, setRecentSchedule] = useLocalStorage<Schedule>(
+    "recentSchedule",
+    null,
+  );
+
+  const scheduleStore = useSchedule();
 
   const {
     isInit,
@@ -44,7 +52,7 @@ const SchedulePanel = () => {
     scheduleToExcel,
     loadBase,
     resetBase,
-  } = useSchedule();
+  } = scheduleStore;
 
   const [select, setSelect] = useState<number>();
   const [showGroup, setShowGroup] = useState(false);
@@ -312,7 +320,16 @@ const SchedulePanel = () => {
               상세정보
             </Button>
           </Flex>
-          `<Button onClick={() => scheduleToExcel()}>저장하기</Button>
+          `
+          <Button
+            onClick={() => {
+              console.log("어래", scheduleStore);
+              setRecentSchedule({ ...scheduleStore } as Schedule);
+              scheduleToExcel();
+            }}
+          >
+            저장하기
+          </Button>
         </Flex>
       </Flex>
       {showGroup && (
