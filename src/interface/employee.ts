@@ -4,6 +4,7 @@ interface Employee {
   targetWorkCount: number;
   isNight: boolean;
   isNew?: boolean;
+  prevWorkCount?: number;
 }
 
 export default Employee;

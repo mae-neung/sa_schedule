@@ -92,10 +92,7 @@ const SchedulePanel = () => {
         },
         title: "목표 휴일 변경",
         content: (
-          <InputNumber
-            defaultValue={worker[idx].targetWorkCount}
-            onInput={(v) => (numRest = Number.parseInt(v))}
-          />
+          <InputNumber onInput={(v) => (numRest = Number.parseInt(v))} />
         ),
       });
     },
@@ -344,7 +341,7 @@ const SchedulePanel = () => {
                 if (base) loadBase();
                 else saveBase();
 
-                makeDaySchedule(true);
+                makeDaySchedule();
                 makeNightSchedule();
               }}
             >

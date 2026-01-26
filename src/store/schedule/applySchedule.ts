@@ -22,6 +22,17 @@ const applySchedule = (
     if (workCount[day] === 0)
       candidates = candidates.filter((w) => !worker[w].isNew);
 
+    if (day < 4) {
+      candidates = candidates.filter(
+        (w) =>
+          schedule[w].indexOf(0) != day ||
+          (worker[w].prevWorkCount ?? 0) +
+            schedule[w].indexOf(0) +
+            schedule[w].slice(day + 1).indexOf(0) <
+            4, //첫 휴무날
+      );
+    }
+
     if (day > 0)
       candidates = candidates.filter((w) => schedule[w][day - 1] !== 2);
 
@@ -79,8 +90,20 @@ const applySchedule = (
   } else {
     candidates = candidates.filter((w) => !worker[w].isNight);
     /* 주간 로직 */
+
     if (workCount[day] === 0)
       candidates = candidates.filter((w) => !worker[w].isNew);
+
+    if (day < 4) {
+      candidates = candidates.filter(
+        (w) =>
+          schedule[w].indexOf(0) != day ||
+          (worker[w].prevWorkCount ?? 0) +
+            schedule[w].indexOf(0) +
+            schedule[w].slice(day + 1).indexOf(0) <
+            5, //첫 휴무날
+      );
+    }
 
     for (let i = 0; i < 5; i++)
       if (day >= 4 - i && day + i < numDays)
