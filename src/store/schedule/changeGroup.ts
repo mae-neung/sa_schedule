@@ -4,10 +4,19 @@ const changeGroup = (g: number) =>
   useScheduleStore.setState((state) => {
     const { group, dayGroup, nightGroup } = state;
 
-    const gap = Math.abs(group - g);
+    let gap = group - g;
 
-    const dGroup = [...dayGroup.slice(gap), ...dayGroup.slice(0, gap)];
-    const nGroup = [...nightGroup.slice(gap), ...nightGroup.slice(0, gap)];
+    let dGroup;
+    let nGroup;
+
+    if (gap > 0) {
+      dGroup = [...dayGroup.slice(gap), ...dayGroup.slice(0, gap)];
+      nGroup = [...nightGroup.slice(gap), ...nightGroup.slice(0, gap)];
+    } else {
+      gap = 4 + gap;
+      dGroup = [...dayGroup.slice(Math.abs(gap)), ...dayGroup.slice(0, gap)];
+      nGroup = [...nightGroup.slice(gap), ...nightGroup.slice(0, gap)];
+    }
 
     return { group: g, dayGroup: dGroup, nightGroup: nGroup };
   });

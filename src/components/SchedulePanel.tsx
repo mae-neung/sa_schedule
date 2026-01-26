@@ -77,7 +77,7 @@ const SchedulePanel = () => {
     (idx: number, type: "rest" | "workType") => {
       if (base) {
         Modal.error({
-          title: "근무형태 변경",
+          title: "시간표 기본정보 변경",
           content:
             "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
         });
