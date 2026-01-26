@@ -73,28 +73,40 @@ const SchedulePanel = () => {
     [select, selectedNight, selectedDay],
   );
 
-  const handleChangeRest = useCallback(
-    (idx: number) => {
+  const handleChange = useCallback(
+    (idx: number, type: "rest" | "workType") => {
       if (base) {
         Modal.error({
-          title: "목표 휴일 변경",
+          title: "근무형태 변경",
           content:
             "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
         });
         return;
       }
 
-      let numRest = 0;
-      Modal.confirm({
-        onOk: () => {
-          if (numRest == 0) return;
-          updateWorker(idx, { ...worker[idx], targetWorkCount: numRest });
-        },
-        title: "목표 휴일 변경",
-        content: (
-          <InputNumber onInput={(v) => (numRest = Number.parseInt(v))} />
-        ),
-      });
+      if (type === "workType") {
+        const emp = { ...worker[idx] };
+        emp.isNight = !emp.isNight;
+        updateWorker(idx, emp);
+        return;
+      }
+
+      if (type === "rest") {
+        let numRest = 0;
+        Modal.confirm({
+          onOk: () => {
+            if (numRest == 0) return;
+            const emp = { ...worker[idx] };
+            emp.targetWorkCount = numRest;
+            updateWorker(idx, emp);
+          },
+          title: "목표 휴일 변경",
+          content: (
+            <InputNumber onInput={(v) => (numRest = Number.parseInt(v))} />
+          ),
+        });
+        return;
+      }
     },
     [worker, base],
   );
@@ -193,6 +205,8 @@ const SchedulePanel = () => {
                   width={"65px"}
                   bg={"orange.100"}
                   fontWeight={worker[idx].isNew ? "bold" : undefined}
+                  cursor={"pointer"}
+                  onClick={() => handleChange(idx, "workType")}
                 >
                   {worker[idx].name}
                 </Center>
@@ -233,7 +247,7 @@ const SchedulePanel = () => {
                   flex={1}
                   color={"orange.400"}
                   cursor={"pointer"}
-                  onClick={() => handleChangeRest(idx)}
+                  onClick={() => handleChange(idx, "rest")}
                 >
                   {worker[idx].targetWorkCount}
                 </Center>
@@ -248,6 +262,8 @@ const SchedulePanel = () => {
                   width={"65px"}
                   bg={"blue.100"}
                   fontWeight={worker[idx].isNew ? "bold" : undefined}
+                  cursor={"pointer"}
+                  onClick={() => handleChange(idx, "workType")}
                 >
                   {worker[idx].name}
                 </Center>
@@ -288,7 +304,7 @@ const SchedulePanel = () => {
                   flex={1}
                   color={"orange.400"}
                   cursor={"pointer"}
-                  onClick={() => handleChangeRest(idx)}
+                  onClick={() => handleChange(idx, "rest")}
                 >
                   {worker[idx].targetWorkCount}
                 </Center>

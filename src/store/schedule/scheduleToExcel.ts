@@ -131,6 +131,7 @@ const scheduleToExcel = async () => {
       },
     };
     scheduleSheet.getCell(6 + i, 35).value = numDays - worker[i].workCount;
+    scheduleSheet.getCell(6 + i, 36).value = worker[i].targetWorkCount;
     for (let j = 0; j < numDays; j++) {
       workSheet.getCell(j < 16 ? 4 : 9, 2 + (j % 16)).value = j + 1;
       workSheet.getCell(j < 16 ? 5 : 10, 2 + (j % 16)).value =
