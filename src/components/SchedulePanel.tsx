@@ -1,5 +1,5 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react";
-import { Empty, Modal } from "antd";
+import { Empty, InputNumber, Modal } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScheduleStore from "../store/schedule";
@@ -28,6 +28,7 @@ import resetBase from "../store/schedule/resetBase.ts";
 import toJson from "../store/schedule/toJson.ts";
 import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
 import initNextMonth from "../store/schedule/initNextMonth.ts";
+import updateWorker from "../store/schedule/updateWorker.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -70,6 +71,35 @@ const SchedulePanel = () => {
       setSelect(undefined);
     },
     [select, selectedNight, selectedDay],
+  );
+
+  const handleChangeRest = useCallback(
+    (idx: number) => {
+      if (base) {
+        Modal.error({
+          title: "목표 휴일 변경",
+          content:
+            "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
+        });
+        return;
+      }
+
+      let numRest = 0;
+      Modal.confirm({
+        onOk: () => {
+          if (numRest == 0) return;
+          updateWorker(idx, { ...worker[idx], targetWorkCount: numRest });
+        },
+        title: "목표 휴일 변경",
+        content: (
+          <InputNumber
+            defaultValue={worker[idx].targetWorkCount}
+            onInput={(v) => (numRest = Number.parseInt(v))}
+          />
+        ),
+      });
+    },
+    [worker, base],
   );
 
   if (!isInit)
@@ -201,7 +231,13 @@ const SchedulePanel = () => {
                 <Center p={1} flex={1}>
                   {numDays - worker[idx].workCount}
                 </Center>
-                <Center p={1} flex={1}>
+                <Center
+                  p={1}
+                  flex={1}
+                  color={"orange.400"}
+                  cursor={"pointer"}
+                  onClick={() => handleChangeRest(idx)}
+                >
                   {worker[idx].targetWorkCount}
                 </Center>
               </Flex>
@@ -250,14 +286,20 @@ const SchedulePanel = () => {
                 <Center p={1} flex={1}>
                   {numDays - worker[idx].workCount}
                 </Center>
-                <Center p={1} flex={1}>
+                <Center
+                  p={1}
+                  flex={1}
+                  color={"orange.400"}
+                  cursor={"pointer"}
+                  onClick={() => handleChangeRest(idx)}
+                >
                   {worker[idx].targetWorkCount}
                 </Center>
               </Flex>
             ),
         )}
         {GROUP.map((g, gIdx) => (
-          <Flex bg={"yellow.100"}>
+          <Flex>
             <Center
               bg={group === gIdx ? "orange.100" : "yellow.100"}
               width={"65px"}
@@ -267,7 +309,7 @@ const SchedulePanel = () => {
               {g}조
             </Center>
             {dayWorkCount.map((_, idx) => (
-              <Center p={1} flex={1}>
+              <Center bg={"yellow.100"} p={1} flex={1}>
                 {GROUP_WORK_TYPE[(36 + group - gIdx - idx) % 4]}
               </Center>
             ))}
