@@ -57,13 +57,17 @@ const applySchedule = (
         schedule[w][day] === 0,
     );
 
-    candidates = candidates.sort((a, b) =>
-      aloneCount[a] <= aloneCount[b] ? -1 : 1,
-    );
+    if (schedule.filter((w) => w[day] === 2).length > 0) {
+      candidates = candidates.sort((a, b) =>
+        aloneCount[a] <= aloneCount[b] ? -1 : 1,
+      );
+    } else {
+      candidates = candidates.sort(() => Math.random() - 0.5);
+    }
+
     candidates = candidates.filter(
       (v) => aloneCount[v] == aloneCount[candidates[0]],
     );
-    candidates = candidates.sort(() => Math.random() - 0.5);
 
     if (candidates.length > 0) {
       const selected = candidates[0];
@@ -118,13 +122,17 @@ const applySchedule = (
         schedule[w][day] === 0,
     );
 
-    candidates = candidates.sort((a, b) =>
-      aloneCount[a] <= aloneCount[b] ? -1 : 1,
-    );
-    candidates = candidates.filter(
-      (v) => aloneCount[v] == aloneCount[candidates[0]],
-    );
-    candidates = candidates.sort(() => Math.random() - 0.5);
+    if (schedule.filter((w) => w[day] === 1).length > 0) {
+      candidates = candidates.sort((a, b) =>
+        aloneCount[a] <= aloneCount[b] ? -1 : 1,
+      );
+    } else {
+      candidates = candidates.sort(() => Math.random() - 0.5);
+    }
+
+    // candidates = candidates.filter(
+    //   (v) => aloneCount[v] == aloneCount[candidates[0]],
+    // );
 
     if (candidates.length > 0) {
       const selected = candidates[0];
