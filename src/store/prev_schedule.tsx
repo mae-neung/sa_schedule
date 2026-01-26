@@ -945,6 +945,7 @@ const useSchedule = create<ScheduleStore>((set, get) => {
         const employee: Employee = {
           name: workerRow.getCell(2).value as string,
           workCount: workerRow.getCell(3).value as number,
+          targetWorkCount: 0,
           isNight: workerRow.getCell(4).value as boolean,
           isNew: workerRow.getCell(5).value as boolean,
         };

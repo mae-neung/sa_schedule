@@ -17,7 +17,6 @@ const scheduleToExcel = async () => {
     dayGroup,
     dayWorkCount,
     base,
-    numRest,
     weekday,
     date,
   } = useScheduleStore.getState();
@@ -25,7 +24,7 @@ const scheduleToExcel = async () => {
   const scheduleData = [
     dayjs(date).month() + 1,
     numDays,
-    numRest,
+    0,
     weekday,
     group,
     worker.length,
@@ -38,6 +37,7 @@ const scheduleToExcel = async () => {
     emp.workCount,
     emp.isNight,
     emp.isNew,
+    emp.targetWorkCount,
   ]);
 
   const scheduleDataRows = schedule.map((work) =>

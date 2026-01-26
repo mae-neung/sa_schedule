@@ -2,7 +2,7 @@ import useScheduleStore from "./index.ts";
 import { Dayjs } from "dayjs";
 import resetWorkCount from "./resetWorkCount.ts";
 
-const init = (date: Dayjs, numRest: number, group: number) =>
+const init = (date: Dayjs, group: number) =>
   useScheduleStore.setState((state) => {
     const { worker } = state;
 
@@ -40,7 +40,6 @@ const init = (date: Dayjs, numRest: number, group: number) =>
       date: date.format("YYYY-MM-01"),
       weekday: weekday,
       numDays: numDays,
-      numRest: numRest,
       schedule: Array(worker.length).fill(Array(numDays).fill(0)),
       selectedDay: selectedDay,
       selectedNight: selectedNight,

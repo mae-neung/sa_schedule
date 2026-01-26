@@ -6,7 +6,6 @@ const useScheduleStore = create<Schedule>(() => ({
   date: "",
   weekday: 0,
   numDays: 0,
-  numRest: 0,
   group: 0,
   schedule: [],
   worker: [],

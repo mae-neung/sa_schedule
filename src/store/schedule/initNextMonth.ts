@@ -41,7 +41,6 @@ const initNextMonth = () =>
       date: target.format("YYYY-MM-01"),
       weekday: weekday,
       numDays: numDays,
-      numRest: (numDays / 7) * 2,
       schedule: Array(worker.length).fill(Array(numDays).fill(0)),
       selectedDay: selectedDay,
       selectedNight: selectedNight,

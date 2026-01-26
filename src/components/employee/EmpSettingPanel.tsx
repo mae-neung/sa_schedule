@@ -1,6 +1,6 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react";
 
-import { DatePicker, Form, InputNumber, Modal, Select, Upload } from "antd";
+import { DatePicker, Form, Modal, Select, Upload } from "antd";
 import { UploadOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
@@ -28,7 +28,7 @@ const EmpSettingPanel = () => {
   const [form] = useForm();
 
   const handleSubmit = useCallback(
-    (v: { date: dayjs.Dayjs; numRest: number; group: number }) => {
+    (v: { date: dayjs.Dayjs; group: number }) => {
       if (
         worker.filter((w) => !w.isNight).length == 0 ||
         worker.filter((w) => w.isNight).length == 0
@@ -45,14 +45,14 @@ const EmpSettingPanel = () => {
           content:
             "이전에 생성된 시간표가 있어요. 다시 만들까요?\n(기존 내용은 삭제됩니다.)",
           onOk: async () => {
-            init(v.date, v.numRest, v.group);
+            init(v.date, v.group);
             setWorker(worker);
             navigate("/schedule");
           },
         });
         return;
       }
-      init(v.date, v.numRest, v.group);
+      init(v.date, v.group);
       setWorker(worker);
       navigate("/schedule");
     },
@@ -66,7 +66,6 @@ const EmpSettingPanel = () => {
         onFinish={handleSubmit}
         initialValues={{
           date: dayjs().add(1, "month"),
-          numRest: 8,
           allowDayTwo: true,
           group: 0,
         }}
@@ -88,12 +87,6 @@ const EmpSettingPanel = () => {
               <Text fontWeight={"bold"}>월 선택</Text>
               <Form.Item name={"date"} noStyle>
                 <DatePicker picker={"month"} />
-              </Form.Item>
-            </Flex>
-            <Flex flexDir={"column"}>
-              <Text fontWeight={"bold"}>휴일 갯수</Text>
-              <Form.Item name={"numRest"} noStyle>
-                <InputNumber style={{ width: "100%" }} min={0} max={31} />
               </Form.Item>
             </Flex>
             <Flex flexDir={"column"}>

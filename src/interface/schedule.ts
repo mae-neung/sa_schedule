@@ -5,7 +5,6 @@ interface Schedule {
   date: string;
   weekday: number;
   numDays: number;
-  numRest: number;
   group: number;
   selectedDay: Array<number>;
   selectedNight: Array<number>;

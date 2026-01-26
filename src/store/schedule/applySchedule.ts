@@ -10,13 +10,11 @@ const applySchedule = (
   groupCount: number[],
   night?: boolean,
 ) => {
-  const { numDays, group, numRest } = useScheduleStore.getState();
+  const { numDays, group } = useScheduleStore.getState();
 
   const numWorkers = worker.length;
 
   let candidates: number[] = Array.from({ length: numWorkers }, (_, i) => i);
-
-  const targetWork = numDays - numRest;
 
   if (night) {
     candidates = candidates.filter((w) => worker[w].isNight);
@@ -43,7 +41,9 @@ const applySchedule = (
       );
 
     candidates = candidates.filter(
-      (w) => worker[w].workCount < targetWork - 1 && schedule[w][day] === 0,
+      (w) =>
+        worker[w].workCount < numDays - worker[w].targetWorkCount - 1 &&
+        schedule[w][day] === 0,
     );
 
     candidates = candidates.sort((a, b) =>
@@ -90,7 +90,9 @@ const applySchedule = (
         });
 
     candidates = candidates.filter(
-      (w) => worker[w].workCount < targetWork && schedule[w][day] === 0,
+      (w) =>
+        worker[w].workCount < numDays - worker[w].targetWorkCount &&
+        schedule[w][day] === 0,
     );
 
     candidates = candidates.sort((a, b) =>

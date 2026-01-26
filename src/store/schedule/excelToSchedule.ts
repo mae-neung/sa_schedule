@@ -28,6 +28,7 @@ const excelToSchedule = async (file: RcFile) => {
         workCount: workerRow.getCell(3).value as number,
         isNight: workerRow.getCell(4).value as boolean,
         isNew: workerRow.getCell(5).value as boolean,
+        targetWorkCount: workerRow.getCell(6).value as number,
       };
       empList.push(employee);
     }
@@ -114,7 +115,6 @@ const excelToSchedule = async (file: RcFile) => {
       isInit: true,
       date: date,
       numDays: numDays,
-      numRest: defaultRow.getCell(3).value as number,
       weekday: defaultRow.getCell(4).value as number,
       group: defaultRow.getCell(5).value as number,
       schedule: schedule,
