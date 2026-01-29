@@ -18,6 +18,7 @@ const applySchedule = (
 
   if (night) {
     candidates = candidates.filter((w) => worker[w].isNight);
+
     /* 야간 로직 */
     if (workCount[day] === 0)
       candidates = candidates.filter((w) => !worker[w].isNew);
@@ -56,6 +57,14 @@ const applySchedule = (
         worker[w].workCount < numDays - worker[w].targetWorkCount - 1 &&
         schedule[w][day] === 0,
     );
+
+    if (day > 0) {
+      const temp = candidates.filter((w) => schedule[w][day - 1] != 3);
+
+      if (temp.length > 0) {
+        candidates = temp;
+      }
+    }
 
     if (schedule.filter((w) => w[day] === 2).length > 0) {
       candidates = candidates.sort((a, b) =>
