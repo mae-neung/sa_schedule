@@ -25,7 +25,7 @@ const changeGroup = (name: string, startDate: number) =>
 
     let validDate = [];
 
-    newSch[startDate] = 1;
+    newSch[startDate - 1] = 1;
     newWk.workCount++;
 
     for (let i = startDate; i < numDays; i++) validDate.push(i);
