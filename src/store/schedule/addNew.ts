@@ -25,7 +25,10 @@ const changeGroup = (name: string, startDate: number) =>
 
     let validDate = [];
 
-    for (let i = startDate - 1; i < numDays; i++) validDate.push(i);
+    newSch[startDate] = 1;
+    newWk.workCount++;
+
+    for (let i = startDate; i < numDays; i++) validDate.push(i);
 
     validDate = validDate.sort(() => Math.random() - 0.5);
 
