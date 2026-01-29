@@ -1,5 +1,5 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react";
-import { Empty, InputNumber, Modal } from "antd";
+import { Empty, Form, Input, InputNumber, Modal } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScheduleStore from "../store/schedule";
@@ -29,6 +29,7 @@ import toJson from "../store/schedule/toJson.ts";
 import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
 import initNextMonth from "../store/schedule/initNextMonth.ts";
 import updateWorker from "../store/schedule/updateWorker.ts";
+import addNew from "../store/schedule/addNew.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -110,6 +111,38 @@ const SchedulePanel = () => {
     },
     [worker, base],
   );
+
+  const handleAddNew = useCallback(() => {
+    if (!base) {
+      Modal.error({
+        title: "신입 근무자 추가",
+        content: "시간표 배치후에 진행해 주세요.",
+      });
+      return;
+    }
+
+    let name = "";
+    let startDate = 0;
+
+    Modal.confirm({
+      title: "신입 근무자 추가",
+      content: (
+        <Form layout={"vertical"}>
+          <Form.Item label={"이름"}>
+            <Input onChange={(e) => (name = e.target.value)} />
+          </Form.Item>
+          <Form.Item label={"근무 시작일"}>
+            <InputNumber
+              min={1}
+              max={31}
+              onInput={(v) => (startDate = Number.parseInt(v))}
+            />
+          </Form.Item>
+        </Form>
+      ),
+      onOk: () => addNew(name, startDate),
+    });
+  }, [worker, base]);
 
   if (!isInit)
     return (
@@ -381,6 +414,7 @@ const SchedulePanel = () => {
             <Button onClick={() => setShowGroup((prev) => !prev)}>
               상세정보
             </Button>
+            <Button onClick={() => handleAddNew()}>신입 근무자 추가</Button>
           </Flex>
           <Flex gap={2}>
             <Button

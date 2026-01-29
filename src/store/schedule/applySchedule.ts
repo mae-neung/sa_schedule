@@ -122,7 +122,7 @@ const applySchedule = (
         schedule[w][day] === 0,
     );
 
-    if (schedule.filter((w) => w[day] === 1).length > 0) {
+    if (workCount[day] == 1) {
       candidates = candidates.sort((a, b) =>
         aloneCount[a] <= aloneCount[b] ? -1 : 1,
       );
