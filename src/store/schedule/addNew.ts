@@ -3,7 +3,7 @@ import Employee from "../../interface/employee.ts";
 
 const changeGroup = (name: string, startDate: number) =>
   useScheduleStore.setState((state) => {
-    const { weekday, worker, numDays, schedule } = state;
+    const { weekday, worker, numDays, schedule, dayWorkCount } = state;
 
     const wk = worker.map((w) => ({ ...w }));
     const sch = schedule.map((sch) => [...sch]);
@@ -31,6 +31,7 @@ const changeGroup = (name: string, startDate: number) =>
     for (let i = startDate; i < numDays; i++) validDate.push(i);
 
     validDate = validDate.sort(() => Math.random() - 0.5);
+    validDate = validDate.sort((v) => (dayWorkCount[v] === 1 ? 1 : -1));
 
     while (newWk.workCount < newWk.targetWorkCount) {
       const select = validDate.pop() ?? -1;
