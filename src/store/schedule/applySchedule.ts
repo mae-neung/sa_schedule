@@ -19,6 +19,8 @@ const applySchedule = (
   if (night) {
     candidates = candidates.filter((w) => worker[w].isNight);
 
+    candidates = candidates.filter((w) => schedule[w][day] == 0);
+
     /* 야간 로직 */
     if (workCount[day] === 0)
       candidates = candidates.filter((w) => !worker[w].isNew);
@@ -34,9 +36,6 @@ const applySchedule = (
       );
     }
 
-    if (day > 0)
-      candidates = candidates.filter((w) => schedule[w][day - 1] !== 2);
-
     if (day > 2)
       candidates = candidates.filter(
         (w) => schedule[w][day - 3] !== 3 || schedule[w][day - 2] !== 2,
@@ -49,13 +48,16 @@ const applySchedule = (
 
     if (day + 4 < numDays)
       candidates = candidates.filter(
-        (w) => schedule[w][day + 2] !== 2 && schedule[w][day + 4] !== 2,
+        (w) => schedule[w][day + 2] !== 2 || schedule[w][day + 4] !== 2,
+      );
+
+    if (1 < day && day + 2 < numDays)
+      candidates = candidates.filter(
+        (w) => schedule[w][day - 2] !== 2 || schedule[w][day + 2] !== 2,
       );
 
     candidates = candidates.filter(
-      (w) =>
-        worker[w].workCount < numDays - worker[w].targetWorkCount - 1 &&
-        schedule[w][day] === 0,
+      (w) => worker[w].workCount < numDays - worker[w].targetWorkCount - 1,
     );
 
     if (day > 0) {

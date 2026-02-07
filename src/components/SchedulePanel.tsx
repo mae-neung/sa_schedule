@@ -30,6 +30,7 @@ import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
 import initNextMonth from "../store/schedule/initNextMonth.ts";
 import updateWorker from "../store/schedule/updateWorker.ts";
 import addNew from "../store/schedule/addNew.ts";
+import matchSchedule from "../store/schedule/matchSchedule.ts";
 
 const SchedulePanel = () => {
   const navigate = useNavigate();
@@ -415,6 +416,7 @@ const SchedulePanel = () => {
               상세정보
             </Button>
             <Button onClick={() => handleAddNew()}>신입 근무자 추가</Button>
+            <Button onClick={() => matchSchedule()}>빈칸 자동 배치</Button>
           </Flex>
           <Flex gap={2}>
             <Button
