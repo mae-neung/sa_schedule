@@ -31,7 +31,7 @@ const applySchedule = (
           schedule[w].indexOf(0) != day ||
           (worker[w].prevWorkCount ?? 0) +
             schedule[w].indexOf(0) +
-            schedule[w].slice(day + 1).indexOf(0) <
+            schedule[w].slice(day + 2).indexOf(0) <
             4, //첫 휴무날
       );
     }
