@@ -12,8 +12,7 @@ const changeGroup = (name: string, startDate: number) =>
     let targetWorkCount = 0;
 
     for (let i = 0; i <= numDays - startDate; i++)
-      if ([1, 2, 3, 4, 5].includes((weekday + startDate + 1) % 7))
-        targetWorkCount++;
+      if ([1, 2, 3, 4, 5].includes((weekday + i + 1) % 7)) targetWorkCount++;
 
     const newWk: Employee = {
       name,
