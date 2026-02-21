@@ -108,6 +108,10 @@ const scheduleToExcel = async () => {
     scheduleSheet.getCell(27, 3 + i).value = nightWorkCount[i];
   }
 
+  const workerIdx = worker
+    .map((_, idx) => idx)
+    .sort((v) => (worker[v].isNight ? 1 : -1));
+
   for (let i = 0; i < worker.length; i++) {
     const workSheet = workbook.getWorksheet("worker" + i);
     if (!workSheet || !scheduleSheet) return;
@@ -116,11 +120,11 @@ const scheduleToExcel = async () => {
     workSheet.getCell(2, 1).value = dayjs(date).format("YYYY년 MM월");
     workSheet.getCell(3, 19).value = dayjs(date).format(worker[i].name);
 
-    scheduleSheet.getCell(6 + i, 39).value = aloneCount[i];
+    scheduleSheet.getCell(6 + i, 39).value = aloneCount[workerIdx[i]];
     scheduleSheet.getCell(6 + i, 1).value = i + 1;
     const cell = scheduleSheet.getCell(6 + i, 2);
-    const color = worker[i].isNight ? "FFD9EAD3" : "FFFFD966";
-    cell.value = worker[i].name;
+    const color = worker[workerIdx[i]].isNight ? "FFD9EAD3" : "FFFFD966";
+    cell.value = worker[workerIdx[i]].name;
     cell.style = {
       ...cell.style,
       fill: {
@@ -130,8 +134,10 @@ const scheduleToExcel = async () => {
         fgColor: { argb: color },
       },
     };
-    scheduleSheet.getCell(6 + i, 35).value = numDays - worker[i].workCount;
-    scheduleSheet.getCell(6 + i, 36).value = worker[i].targetWorkCount;
+    scheduleSheet.getCell(6 + i, 35).value =
+      numDays - worker[workerIdx[i]].workCount;
+    scheduleSheet.getCell(6 + i, 36).value =
+      worker[workerIdx[i]].targetWorkCount;
     for (let j = 0; j < numDays; j++) {
       workSheet.getCell(j < 16 ? 4 : 9, 2 + (j % 16)).value = j + 1;
       workSheet.getCell(j < 16 ? 5 : 10, 2 + (j % 16)).value =
@@ -139,7 +145,8 @@ const scheduleToExcel = async () => {
       workSheet.getCell(j < 16 ? 6 : 11, 2 + (j % 16)).value =
         WORK_TYPES[schedule[i][j]];
 
-      scheduleSheet.getCell(6 + i, 3 + j).value = WORK_TYPES[schedule[i][j]];
+      scheduleSheet.getCell(6 + i, 3 + j).value =
+        WORK_TYPES[schedule[workerIdx[i]][j]];
     }
   }
 
