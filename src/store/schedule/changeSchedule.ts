@@ -28,8 +28,7 @@ const changeSchedule = (
     const aCount = [...aloneCount];
 
     const dGroupIdx = (32 + group - day) % 4;
-    const nGroupIdx = (32 + group - day + 1) % 4;
-
+    const nGroupIdx = (32 + group - day - 1) % 4;
     /* 변경 사항이 없을 경우*/
     if (sch[emp][day] == workType) return {};
 
