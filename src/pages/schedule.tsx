@@ -104,7 +104,7 @@ const SchedulePage = () => {
       if (localStorage.getItem("schedule-base")) {
         Modal.error({
           title: "시간표 기본정보 변경",
-          content: "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
+          content: "시간표가 생성된 상태에서는 변경 불가능해요. 배치 초기화 후에 변경해주세요.",
         });
         return;
       }
@@ -574,10 +574,10 @@ const SchedulePage = () => {
             </Button>
             {[
               {
-                label: "리셋",
+                label: "배치 초기화",
                 onClick: () =>
                   Modal.confirm({
-                    title: "근무 배치",
+                    title: "배치 초기화",
                     content: "근무 배치를 초기화해요. (현재 스케줄이 삭제됩니다.)",
                     onOk: () => { loadBase(); resetBase(); setArranged(false); },
                   }),
