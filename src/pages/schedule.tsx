@@ -1,4 +1,4 @@
-import { Button, Center, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Flex, Text } from "@chakra-ui/react";
 import { Empty, Form, Input, InputNumber, Modal } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,10 @@ import updateWorker from "../store/schedule/updateWorker.ts";
 import addNew from "../store/schedule/addNew.ts";
 import matchSchedule from "../store/schedule/matchSchedule.ts";
 
+const CELL_W = "58px";
+const CELL_H = "30px";
+const EXTRA_COLS = 2;
+
 const SchedulePage = () => {
   const navigate = useNavigate();
   const [workType, setWorkType] = useState(0);
@@ -52,7 +56,6 @@ const SchedulePage = () => {
   } = useScheduleStore();
 
   const [select, setSelect] = useState<number>();
-  const [showGroup, setShowGroup] = useState(false);
   const [groupHighlight, setGroupHighlight] = useState<number>(-1);
   const [workerHighlight, setWorkerHighlight] = useState<number>();
 
@@ -84,14 +87,12 @@ const SchedulePage = () => {
         });
         return;
       }
-
       if (type === "workType") {
         const emp = { ...worker[idx] };
         emp.isNight = !emp.isNight;
         updateWorker(idx, emp);
         return;
       }
-
       if (type === "rest") {
         let numRest = 0;
         Modal.confirm({
@@ -120,10 +121,8 @@ const SchedulePage = () => {
       });
       return;
     }
-
     let name = "";
     let startDate = 0;
-
     Modal.confirm({
       title: "신입 근무자 추가",
       content: (
@@ -146,293 +145,463 @@ const SchedulePage = () => {
 
   if (!isInit)
     return (
-      <Center my={"200px"}>
+      <Flex align={"center"} justify={"center"} minH={"100vh"} bg={"bg"}>
         <Empty description={"스케줄이 없습니다."} />
-      </Center>
+      </Flex>
     );
 
   return (
-    <Center gap={4}>
+    <Flex flexDir={"column"} minH={"100vh"} bg={"bg"} color={"fg"}>
+
+      {/* 헤더 */}
       <Flex
-        p={4}
-        borderRadius={"2xl"}
-        border={"4px solid gray"}
-        w={"1080px"}
-        flexDirection={"column"}
+        align={"center"}
+        justify={"space-between"}
+        px={6}
+        py={4}
+        borderBottom={"1px solid"}
+        borderColor={"border"}
+        position={"sticky"}
+        top={0}
+        bg={"bg"}
+        zIndex={10}
       >
-        <Flex justify={"space-between"} my={2}>
-          <Flex gap={2}>
-            <Flex cursor={"pointer"} onClick={() => navigate(-1)}>
-              <LeftOutlined />
-            </Flex>
-            <Text fontWeight={"bold"} fontSize={24}>
-              {`${dayjs(date).format("YYYY년 MM월 시간표")}`}
-            </Text>
+        <Flex align={"center"} gap={3}>
+          <Flex
+            cursor={"pointer"}
+            color={"fg.subtle"}
+            _hover={{ color: "fg" }}
+            onClick={() => navigate(-1)}
+            fontSize={"sm"}
+          >
+            <LeftOutlined />
           </Flex>
-          <Flex gap={2}>
-            {WORK_TYPES_LABEL.map((type, idx) => (
-              <Button
-                bg={workType == idx ? "orange" : undefined}
-                onClick={() => setWorkType(idx)}
-              >
-                {type}
-              </Button>
-            ))}
-          </Flex>
+          <Text fontWeight={"700"} fontSize={"lg"} color={"fg"}>
+            {dayjs(date).format("YYYY년 MM월 시간표")}
+          </Text>
         </Flex>
-        <Flex>
-          <Center width={"65px"} />
-          {dayWorkCount.map((_, idx) => (
-            <Center
-              cursor={"pointer"}
-              onClick={() => setSelect(idx)}
-              p={1}
-              flex={1}
-            >
-              {selectedDay.includes(idx) && (
-                <Flex h={"8px"} bg={"orange.500"} flex={1} />
-              )}
-              {selectedNight.includes(idx) && (
-                <Flex h={"8px"} bg="blue.500" flex={1} />
-              )}
-            </Center>
-          ))}
-          <Flex p={1} flex={1} />
-          <Flex p={1} flex={1} />
-        </Flex>
-        <Flex>
-          <Center width={"65px"}>날짜</Center>
-          {dayWorkCount.map((_, idx) => (
-            <Center
-              cursor={"pointer"}
-              onClick={() => setSelect(idx)}
-              p={1}
-              flex={1}
-            >
-              {idx + 1}
-            </Center>
-          ))}
-          <Flex p={1} flex={1} />
-          <Flex p={1} flex={1} />
-        </Flex>
-        <Flex>
-          <Center width={"65px"}>요일</Center>
-          {dayWorkCount.map((_, idx) => (
-            <Center
-              cursor={"pointer"}
-              onClick={() => setSelect(idx)}
-              p={1}
-              flex={1}
-            >
-              {WEEKDAY[(weekday + idx) % 7]}
-            </Center>
-          ))}
-          <Flex p={1} flex={1} />
-          <Flex p={1} flex={1} />
-        </Flex>
-        {schedule.map(
-          (emp, idx) =>
-            !worker[idx].isNight && (
-              <Flex>
-                <Center
-                  width={"65px"}
-                  bg={"orange.100"}
-                  fontWeight={worker[idx].isNew ? "bold" : undefined}
-                  cursor={"pointer"}
-                  onClick={() => handleChange(idx, "workType")}
-                >
-                  {worker[idx].name}
-                </Center>
-                {emp.map((type, day) => (
-                  <Center
-                    opacity={
-                      idx === workerHighlight
-                        ? dayWorkCount[day] === 1 &&
-                          [1, 2].includes(schedule[idx][day])
-                          ? undefined
-                          : "20%"
-                        : undefined
-                    }
-                    bg={
-                      groupHighlight > -1 &&
-                      (32 + group - day) % 4 == groupHighlight &&
-                      schedule[idx][day] === 1 &&
-                      dayWorkCount[day] === 1
-                        ? "yellow.100"
-                        : BG_TYPES[type]
-                    }
-                    p={1}
-                    flex={1}
-                    onClick={() => {
-                      changeSchedule(idx, day, workType);
-                    }}
-                    color={COLOR_TYPES[type]}
-                    cursor={"pointer"}
-                  >
-                    {WORK_TYPES[type]}
-                  </Center>
-                ))}
-                <Center p={1} flex={1}>
-                  {numDays - worker[idx].workCount}
-                </Center>
-                <Center
-                  p={1}
-                  flex={1}
-                  color={"orange.400"}
-                  cursor={"pointer"}
-                  onClick={() => handleChange(idx, "rest")}
-                >
-                  {worker[idx].targetWorkCount}
-                </Center>
-              </Flex>
-            ),
-        )}
-        {schedule.map(
-          (emp, idx) =>
-            worker[idx].isNight && (
-              <Flex>
-                <Center
-                  width={"65px"}
-                  bg={"blue.100"}
-                  fontWeight={worker[idx].isNew ? "bold" : undefined}
-                  cursor={"pointer"}
-                  onClick={() => handleChange(idx, "workType")}
-                >
-                  {worker[idx].name}
-                </Center>
-                {emp.map((type, day) => (
-                  <Center
-                    p={1}
-                    flex={1}
-                    opacity={
-                      idx === workerHighlight
-                        ? nightWorkCount[day] === 1 &&
-                          [1, 2].includes(schedule[idx][day])
-                          ? undefined
-                          : "20%"
-                        : undefined
-                    }
-                    bgColor={
-                      groupHighlight > -1 &&
-                      (32 + group - day - 1) % 4 == groupHighlight &&
-                      schedule[idx][day] === 2 &&
-                      nightWorkCount[day] === 1
-                        ? "black"
-                        : BG_TYPES[type]
-                    }
-                    cursor={"pointer"}
-                    onClick={() => {
-                      changeSchedule(idx, day, workType, true);
-                    }}
-                    color={COLOR_TYPES[type]}
-                  >
-                    {WORK_TYPES[type]}
-                  </Center>
-                ))}
-                <Center p={1} flex={1}>
-                  {numDays - worker[idx].workCount}
-                </Center>
-                <Center
-                  p={1}
-                  flex={1}
-                  color={"orange.400"}
-                  cursor={"pointer"}
-                  onClick={() => handleChange(idx, "rest")}
-                >
-                  {worker[idx].targetWorkCount}
-                </Center>
-              </Flex>
-            ),
-        )}
-        {GROUP.map((g, gIdx) => (
-          <Flex>
-            <Center
-              bg={group === gIdx ? "orange.100" : "yellow.100"}
-              width={"65px"}
-              onClick={() => changeGroup(gIdx)}
-              cursor={"pointer"}
-            >
-              {g}조
-            </Center>
-            {dayWorkCount.map((_, idx) => (
-              <Center bg={"yellow.100"} p={1} flex={1}>
-                {GROUP_WORK_TYPE[(36 + group - gIdx - idx) % 4]}
-              </Center>
-            ))}
-            <Flex p={1} flex={1} />
-            <Flex p={1} flex={1} />
-          </Flex>
-        ))}
-        <Flex>
-          <Center width={"65px"}>주간조</Center>
-          {dayWorkCount.map((count) => (
-            <Center p={1} flex={1}>
-              {count}
-            </Center>
-          ))}
-          <Flex p={1} flex={1} />
-          <Flex p={1} flex={1} />
-        </Flex>
-        <Flex>
-          <Center width={"65px"}>야간조</Center>
-          {nightWorkCount.map((count) => (
-            <Center p={1} flex={1}>
-              {count}
-            </Center>
-          ))}
-          <Flex p={1} flex={1} />
-          <Flex p={1} flex={1} />
-        </Flex>
-        <Flex justify={"space-between"}>
-          <Flex gap={2}>
+
+        {/* 근무 유형 선택 */}
+        <Flex gap={1}>
+          {WORK_TYPES_LABEL.map((type, idx) => (
             <Button
+              key={idx}
+              onClick={() => setWorkType(idx)}
+              h={"28px"}
+              px={3}
+              fontSize={"sm"}
+              fontWeight={"500"}
+              borderRadius={"full"}
+              bg={workType === idx ? BG_TYPES[idx] : "transparent"}
+              color={workType === idx ? COLOR_TYPES[idx] : "fg.subtle"}
+              border={"1px solid"}
+              borderColor={workType === idx ? COLOR_TYPES[idx] : "border"}
+              _hover={{ bg: BG_TYPES[idx], color: COLOR_TYPES[idx], borderColor: COLOR_TYPES[idx] }}
+            >
+              {type}
+            </Button>
+          ))}
+        </Flex>
+      </Flex>
+
+      {/* 시간표 본문 */}
+      <Flex flex={1} overflow={"hidden"}>
+        <Flex flexDir={"column"} flex={1} overflowY={"auto"}>
+        <Box overflowX={"auto"}>
+          <Box minW={"max-content"}>
+
+            {/* 2인 근무 인디케이터 */}
+            <Flex borderBottom={"1px solid"} borderColor={"border"}>
+              <Box w={CELL_W} flexShrink={0} />
+              {dayWorkCount.map((_, idx) => (
+                <Center
+                  key={idx}
+                  flex={1}
+                  minW={"28px"}
+                  h={"6px"}
+                  cursor={"pointer"}
+                  onClick={() => setSelect(idx)}
+                >
+                  {selectedDay.includes(idx) && (
+                    <Box h={"4px"} bg={"orange.400"} w={"100%"} borderRadius={"full"} />
+                  )}
+                  {selectedNight.includes(idx) && (
+                    <Box h={"4px"} bg={"blue.400"} w={"100%"} borderRadius={"full"} />
+                  )}
+                </Center>
+              ))}
+              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                <Box key={i} flex={1} minW={"28px"} />
+              ))}
+            </Flex>
+
+            {/* 날짜 행 */}
+            <Flex borderBottom={"1px solid"} borderColor={"border"} bg={"bg.surface"}>
+              <Center w={CELL_W} flexShrink={0} fontSize={"sm"} color={"fg.subtle"} fontWeight={"600"}>
+                날짜
+              </Center>
+              {dayWorkCount.map((_, idx) => (
+                <Center
+                  key={idx}
+                  flex={1}
+                  minW={"28px"}
+                  py={1}
+                  fontSize={"sm"}
+                  fontWeight={"600"}
+                  color={"fg"}
+                  cursor={"pointer"}
+                  onClick={() => setSelect(idx)}
+                  _hover={{ bg: "bg.hover" }}
+                >
+                  {idx + 1}
+                </Center>
+              ))}
+              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                <Box key={i} flex={1} minW={"28px"} />
+              ))}
+            </Flex>
+
+            {/* 요일 행 */}
+            <Flex borderBottom={"1px solid"} borderColor={"border"} bg={"bg.surface"}>
+              <Center w={CELL_W} flexShrink={0} fontSize={"sm"} color={"fg.subtle"} fontWeight={"600"}>
+                요일
+              </Center>
+              {dayWorkCount.map((_, idx) => {
+                const wd = (weekday + idx) % 7;
+                return (
+                  <Center
+                    key={idx}
+                    flex={1}
+                    minW={"28px"}
+                    py={1}
+                    fontSize={"sm"}
+                    fontWeight={"500"}
+                    color={wd === 0 ? "red.400" : wd === 6 ? "blue.400" : "fg.subtle"}
+                    cursor={"pointer"}
+                    onClick={() => setSelect(idx)}
+                    _hover={{ bg: "bg.hover" }}
+                  >
+                    {WEEKDAY[wd]}
+                  </Center>
+                );
+              })}
+              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                <Box key={i} flex={1} minW={"28px"} />
+              ))}
+            </Flex>
+
+            {/* 주간 근무자 */}
+            {schedule.map(
+              (emp, idx) =>
+                !worker[idx].isNight && (
+                  <Flex
+                    key={idx}
+                    borderBottom={"1px solid"}
+                    borderColor={"border"}
+                    _hover={{ bg: "bg.surface" }}
+                  >
+                    <Center
+                      w={CELL_W}
+                      flexShrink={0}
+                      bg={"bg.warning"}
+                      fontSize={"sm"}
+                      fontWeight={worker[idx].isNew ? "700" : "500"}
+                      color={worker[idx].isNew ? "brand" : "fg"}
+                      cursor={"pointer"}
+                      borderRight={"1px solid"}
+                      borderColor={"border"}
+                      onClick={() => handleChange(idx, "workType")}
+                      px={1}
+                    >
+                      {worker[idx].name}
+                    </Center>
+                    {emp.map((type, day) => (
+                      <Center
+                        key={day}
+                        flex={1}
+                        minW={"28px"}
+                        py={1}
+                        fontSize={"sm"}
+                        opacity={
+                          idx === workerHighlight
+                            ? dayWorkCount[day] === 1 && [1, 2].includes(schedule[idx][day])
+                              ? 1
+                              : 0.2
+                            : 1
+                        }
+                        bg={
+                          groupHighlight > -1 &&
+                          (32 + group - day) % 4 === groupHighlight &&
+                          schedule[idx][day] === 1 &&
+                          dayWorkCount[day] === 1
+                            ? "yellow.100"
+                            : BG_TYPES[type]
+                        }
+                        onClick={() => changeSchedule(idx, day, workType)}
+                        color={COLOR_TYPES[type]}
+                        cursor={"pointer"}
+                        _hover={{ filter: "brightness(0.92)" }}
+                      >
+                        {WORK_TYPES[type]}
+                      </Center>
+                    ))}
+                    <Center flex={1} minW={"28px"} py={1} fontSize={"sm"} color={"fg.subtle"}>
+                      {numDays - worker[idx].workCount}
+                    </Center>
+                    <Center
+                      flex={1}
+                      minW={"28px"}
+                      py={1}
+                      fontSize={"sm"}
+                      color={"orange.400"}
+                      cursor={"pointer"}
+                      onClick={() => handleChange(idx, "rest")}
+                    >
+                      {worker[idx].targetWorkCount}
+                    </Center>
+                  </Flex>
+                ),
+            )}
+
+            {/* 야간 근무자 */}
+            {schedule.map(
+              (emp, idx) =>
+                worker[idx].isNight && (
+                  <Flex
+                    key={idx}
+                    borderBottom={"1px solid"}
+                    borderColor={"border"}
+                    _hover={{ bg: "bg.surface" }}
+                  >
+                    <Center
+                      w={CELL_W}
+                      flexShrink={0}
+                      bg={"bg.info"}
+                      fontSize={"sm"}
+                      fontWeight={worker[idx].isNew ? "700" : "500"}
+                      color={worker[idx].isNew ? "brand" : "fg"}
+                      cursor={"pointer"}
+                      borderRight={"1px solid"}
+                      borderColor={"border"}
+                      onClick={() => handleChange(idx, "workType")}
+                      px={1}
+                    >
+                      {worker[idx].name}
+                    </Center>
+                    {emp.map((type, day) => (
+                      <Center
+                        key={day}
+                        flex={1}
+                        minW={"28px"}
+                        py={1}
+                        fontSize={"sm"}
+                        opacity={
+                          idx === workerHighlight
+                            ? nightWorkCount[day] === 1 && [1, 2].includes(schedule[idx][day])
+                              ? 1
+                              : 0.2
+                            : 1
+                        }
+                        bg={
+                          groupHighlight > -1 &&
+                          (33 + group - day) % 4 === groupHighlight &&
+                          schedule[idx][day] === 2 &&
+                          nightWorkCount[day] === 1
+                            ? "black"
+                            : BG_TYPES[type]
+                        }
+                        cursor={"pointer"}
+                        onClick={() => changeSchedule(idx, day, workType, true)}
+                        color={COLOR_TYPES[type]}
+                        _hover={{ filter: "brightness(0.92)" }}
+                      >
+                        {WORK_TYPES[type]}
+                      </Center>
+                    ))}
+                    <Center flex={1} minW={"28px"} py={1} fontSize={"sm"} color={"fg.subtle"}>
+                      {numDays - worker[idx].workCount}
+                    </Center>
+                    <Center
+                      flex={1}
+                      minW={"28px"}
+                      py={1}
+                      fontSize={"sm"}
+                      color={"orange.400"}
+                      cursor={"pointer"}
+                      onClick={() => handleChange(idx, "rest")}
+                    >
+                      {worker[idx].targetWorkCount}
+                    </Center>
+                  </Flex>
+                ),
+            )}
+
+            {/* 조 행 */}
+            {GROUP.map((g, gIdx) => (
+              <Flex
+                key={gIdx}
+                borderBottom={"1px solid"}
+                borderColor={"border"}
+                bg={"bg.surface"}
+              >
+                <Center
+                  w={CELL_W}
+                  flexShrink={0}
+                  fontSize={"sm"}
+                  fontWeight={"600"}
+                  color={group === gIdx ? "orange.500" : "fg.subtle"}
+                  bg={group === gIdx ? "bg.warning" : "bg.surface"}
+                  cursor={"pointer"}
+                  borderRight={"1px solid"}
+                  borderColor={"border"}
+                  onClick={() => changeGroup(gIdx)}
+                >
+                  {g}조
+                </Center>
+                {dayWorkCount.map((_, idx) => (
+                  <Center
+                    key={idx}
+                    flex={1}
+                    minW={"28px"}
+                    py={1}
+                    fontSize={"sm"}
+                    color={"fg.subtle"}
+                  >
+                    {GROUP_WORK_TYPE[(32 + gIdx - group + idx) % 4]}
+                  </Center>
+                ))}
+                {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                  <Box key={i} flex={1} minW={"28px"} />
+                ))}
+              </Flex>
+            ))}
+
+            {/* 주간 수 */}
+            <Flex borderBottom={"1px solid"} borderColor={"border"} h={CELL_H}>
+              <Center w={CELL_W} flexShrink={0} h={CELL_H} fontSize={"sm"} color={"fg.subtle"} borderRight={"1px solid"} borderColor={"border"}>
+                주간
+              </Center>
+              {dayWorkCount.map((count, idx) => (
+                <Center key={idx} flex={1} minW={"28px"} h={CELL_H} fontSize={"sm"} color={"orange.400"} fontWeight={"600"}>
+                  {count || ""}
+                </Center>
+              ))}
+              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                <Box key={i} flex={1} minW={"28px"} h={CELL_H} />
+              ))}
+            </Flex>
+
+            {/* 야간 수 */}
+            <Flex h={CELL_H}>
+              <Center w={CELL_W} flexShrink={0} h={CELL_H} fontSize={"sm"} color={"fg.subtle"} borderRight={"1px solid"} borderColor={"border"}>
+                야간
+              </Center>
+              {nightWorkCount.map((count, idx) => (
+                <Center key={idx} flex={1} minW={"28px"} h={CELL_H} fontSize={"sm"} color={"blue.400"} fontWeight={"600"}>
+                  {count || ""}
+                </Center>
+              ))}
+              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
+                <Box key={i} flex={1} minW={"28px"} h={CELL_H} />
+              ))}
+            </Flex>
+
+          </Box>
+        </Box>
+
+        {/* 액션바 - 시간표 바로 아래 */}
+        <Flex
+          px={6}
+          py={3}
+          borderTop={"1px solid"}
+          borderColor={"border"}
+          justify={"space-between"}
+          align={"center"}
+          bg={"bg"}
+          gap={2}
+          flexWrap={"wrap"}
+          flexShrink={0}
+        >
+          <Flex gap={2} flexWrap={"wrap"}>
+            <Button
+              h={"32px"}
+              px={3}
+              fontSize={"sm"}
+              fontWeight={"600"}
+              bg={"fg"}
+              color={"bg"}
+              borderRadius={"md"}
+              _hover={{ opacity: 0.85 }}
               onClick={() => {
                 if (localStorage.getItem("schedule-base")) loadBase();
                 else saveBase();
-
                 makeDaySchedule();
                 makeNightSchedule();
               }}
             >
               근무 배치
             </Button>
-            <Button
-              onClick={() => {
-                Modal.confirm({
-                  title: "근무 배치",
-                  content:
-                    "근무 배치를 초기화해요. (현재 스케줄이 삭제됩니다.)",
-                  onOk: () => {
-                    loadBase();
-                    resetBase();
-                  },
-                });
-              }}
-            >
-              리셋
-            </Button>
-            <Button onClick={() => setShowGroup((prev) => !prev)}>
-              상세정보
-            </Button>
-            <Button onClick={() => handleAddNew()}>신입 근무자 추가</Button>
-            <Button onClick={() => matchSchedule()}>빈칸 자동 배치</Button>
+            {[
+              {
+                label: "리셋",
+                onClick: () =>
+                  Modal.confirm({
+                    title: "근무 배치",
+                    content: "근무 배치를 초기화해요. (현재 스케줄이 삭제됩니다.)",
+                    onOk: () => { loadBase(); resetBase(); },
+                  }),
+              },
+              { label: "신입 추가", onClick: handleAddNew },
+              { label: "빈칸 배치", onClick: () => matchSchedule() },
+            ].map(({ label, onClick }) => (
+              <Button
+                key={label}
+                h={"32px"}
+                px={3}
+                fontSize={"sm"}
+                fontWeight={"500"}
+                variant={"outline"}
+                borderColor={"border"}
+                color={"fg"}
+                borderRadius={"md"}
+                _hover={{ bg: "bg.subtle" }}
+                onClick={onClick}
+              >
+                {label}
+              </Button>
+            ))}
           </Flex>
           <Flex gap={2}>
             <Button
-              onClick={() => {
+              h={"32px"}
+              px={3}
+              fontSize={"sm"}
+              fontWeight={"500"}
+              variant={"outline"}
+              borderColor={"border"}
+              color={"fg.subtle"}
+              borderRadius={"md"}
+              _hover={{ bg: "bg.subtle", color: "fg" }}
+              onClick={() =>
                 Modal.confirm({
                   title: "다음달 근무표 생성",
                   content:
-                    "현재 시간표를 기준으로 다음달 시간표를 생성합니다.\n기존에 적용된 내용은 다음달 시간표 저장시까지 유지됩니다.(최근 시간표 불러오기)",
-                  onOk: () => {
-                    initNextMonth();
-                  },
-                });
-              }}
+                    "현재 시간표를 기준으로 다음달 시간표를 생성합니다.\n기존에 적용된 내용은 다음달 시간표 저장시까지 유지됩니다.",
+                  onOk: () => initNextMonth(),
+                })
+              }
             >
-              다음달 근무표
+              다음달
             </Button>
             <Button
+              h={"32px"}
+              px={3}
+              fontSize={"sm"}
+              fontWeight={"600"}
+              bg={"fg"}
+              color={"bg"}
+              borderRadius={"md"}
+              _hover={{ opacity: 0.85 }}
               onClick={() => {
                 setRecentSchedule(toJson());
                 scheduleToExcel();
@@ -442,42 +611,53 @@ const SchedulePage = () => {
             </Button>
           </Flex>
         </Flex>
-      </Flex>
-      {showGroup && (
-        <Flex
-          mt={4}
-          p={4}
-          borderRadius={"2xl"}
-          border={"4px solid gray"}
-          flexDirection={"column"}
-        >
-          <GroupPanel
-            group={groupHighlight}
-            onClick={(idx) => setGroupHighlight(idx)}
-          />
-          <PersonalPanel
-            emp={workerHighlight}
-            onClick={(idx) => setWorkerHighlight(idx)}
-          />
         </Flex>
-      )}
+
+        {/* 상세정보 사이드패널 */}
+        <Flex
+          flexDir={"column"}
+          w={"200px"}
+          flexShrink={0}
+          borderLeft={"1px solid"}
+          borderColor={"border"}
+          p={4}
+          gap={4}
+          overflowY={"auto"}
+        >
+          <GroupPanel group={groupHighlight} onClick={(idx) => setGroupHighlight(idx)} />
+          <Box borderTop={"1px solid"} borderColor={"border"} />
+          <PersonalPanel emp={workerHighlight} onClick={(idx) => setWorkerHighlight(idx)} />
+        </Flex>
+      </Flex>
+
+      {/* 2인 근무일 선택 모달 */}
       <Modal
         open={!!select}
         title={"2인 근무일 선택"}
         footer={null}
         onCancel={() => setSelect(undefined)}
       >
-        <Flex flexDir={"column"} gap={2}>
-          2인 근무를 원하는 근무를 선택해주세요.
-          <Button onClick={() => handleSelect()}>
-            {selectedDay.includes(select!) ? "주간 삭제" : "주간 설정"}
+        <Flex flexDir={"column"} gap={2} pt={2}>
+          <Text fontSize={"sm"} color={"fg.subtle"}>
+            2인 근무를 원하는 유형을 선택해주세요.
+          </Text>
+          <Button
+            variant={"outline"}
+            borderColor={"border"}
+            onClick={() => handleSelect()}
+          >
+            {selectedDay.includes(select!) ? "주간 2인 해제" : "주간 2인 설정"}
           </Button>
-          <Button onClick={() => handleSelect(true)}>
-            {selectedNight.includes(select!) ? "야간 삭제" : "야간 설정"}
+          <Button
+            variant={"outline"}
+            borderColor={"border"}
+            onClick={() => handleSelect(true)}
+          >
+            {selectedNight.includes(select!) ? "야간 2인 해제" : "야간 2인 설정"}
           </Button>
         </Flex>
       </Modal>
-    </Center>
+    </Flex>
   );
 };
 

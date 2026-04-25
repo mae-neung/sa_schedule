@@ -91,11 +91,11 @@ const applySchedule = (
       worker[selected].workCount++;
 
       if (workCount[day] == 1) {
-        groupCount[(32 + group - day - 1) % 4]++;
+        groupCount[(33 + group - day) % 4]++;
         aloneCount[selected]++;
       }
       if (workCount[day] == 2) {
-        groupCount[(32 + group - day - 1) % 4]--;
+        groupCount[(33 + group - day) % 4]--;
         const target = worker.findIndex(
           (_, idx) => idx !== selected && schedule[idx][day] === 2,
         );

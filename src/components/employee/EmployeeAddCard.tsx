@@ -1,38 +1,38 @@
-import { Center, Flex, Text, Button } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { Modal, Form, Input, Checkbox, InputNumber } from "antd";
+import { Button, Modal, Form, Input, Checkbox, InputNumber, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import Employee from "../../interface/employee.ts";
 import setWorker from "../../store/schedule/setWorker.ts";
 
-interface EmployeeAddCardProps {
-  night?: boolean;
-}
-
-const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
+const EmployeeAddCard = () => {
   const [form] = useForm();
-
-  const [employee, setEmployee] = useState<"day" | "night">();
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <Flex
-        onClick={() => setEmployee(night ? "night" : "day")}
-        p={2}
-        borderRadius={"2xl"}
-        bg={night ? "bg.info" : "bg.warning"}
-        height={"124px"}
-        border={"1px solid gray"}
+        onClick={() => setOpen(true)}
+        px={3}
+        py={2}
+        borderRadius={"md"}
+        border={"1px dashed"}
+        borderColor={"border"}
         cursor={"pointer"}
+        alignItems={"center"}
+        gap={1}
+        color={"fg.subtle"}
+        _hover={{ color: "fg", borderColor: "border.strong", bg: "bg.surface" }}
+        w={"100%"}
+        justify={"center"}
       >
-        <Center w={"64px"}>
-          <PlusOutlined style={{ fontSize: "24px" }} />
-        </Center>
+        <PlusOutlined style={{ fontSize: "12px" }} />
+        <Text fontSize={"sm"}>근무자 추가</Text>
       </Flex>
       <Modal
-        open={!!employee}
-        onCancel={() => setEmployee(undefined)}
+        open={open}
+        onCancel={() => setOpen(false)}
         title={"근무자 추가"}
         footer={null}
       >
@@ -42,10 +42,12 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
             name,
             isNew,
             targetWorkCount,
+            isNight,
           }: {
             name: string;
             isNew?: boolean;
             targetWorkCount: number;
+            isNight: boolean;
           }) => {
             if (name == "") {
               Modal.error({
@@ -59,25 +61,32 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
               name,
               workCount: 0,
               targetWorkCount,
-              isNight: employee == "night",
+              isNight,
               isNew,
             };
 
             setWorker(emp);
-
             form.resetFields();
-            setEmployee(undefined);
+            setOpen(false);
           }}
-          initialValues={{
-            name: "",
-            targetWorkCount: 10,
-          }}
+          initialValues={{ name: "", targetWorkCount: 10, isNight: false }}
         >
           <Flex flexDir={"column"} gap={2}>
             <Flex flexDir={"column"} gap={2}>
               <Text fontWeight={"bold"}>이름</Text>
               <Form.Item name={"name"} noStyle>
                 <Input />
+              </Form.Item>
+            </Flex>
+            <Flex flexDir={"column"} gap={2}>
+              <Text fontWeight={"bold"}>근무 형태</Text>
+              <Form.Item name={"isNight"} noStyle>
+                <Select
+                  options={[
+                    { value: false, label: "주간" },
+                    { value: true, label: "야간" },
+                  ]}
+                />
               </Form.Item>
             </Flex>
             <Flex flexDir={"column"} gap={2}>
@@ -92,7 +101,7 @@ const EmployeeAddCard = ({ night }: EmployeeAddCardProps) => {
                 <Checkbox />
               </Form.Item>
             </Flex>
-            <Button type={"submit"}>확인</Button>
+            <Button htmlType={"submit"}>확인</Button>
           </Flex>
         </Form>
       </Modal>

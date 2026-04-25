@@ -1,17 +1,13 @@
-import { ChakraProvider, defaultSystem, Center, Theme } from "@chakra-ui/react";
+import { ChakraProvider, Center } from "@chakra-ui/react";
 import { ReactNode } from "react";
+import { system } from "../theme.ts";
 
 const Provider = ({ children }: { children: ReactNode | ReactNode[] }) => {
-  // const [dark, setDark] = useState(false);
-
   return (
-    <ChakraProvider value={defaultSystem}>
-      <Theme appearance={"light"}>
-        <Center flexDirection={"column"} h={"100vh"}>
-          {/*<Navigation />*/}
-          {children}
-        </Center>
-      </Theme>
+    <ChakraProvider value={system}>
+      <Center flexDirection={"column"} minH={"100vh"} bg={"bg"} color={"fg"}>
+        {children}
+      </Center>
     </ChakraProvider>
   );
 };

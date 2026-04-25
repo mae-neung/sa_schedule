@@ -1,7 +1,6 @@
-import { Button, Center, Flex, Text } from "@chakra-ui/react";
-
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { DatePicker, Form, Modal, Select, Upload } from "antd";
-import { UploadOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
 import EmployeeCard from "../components/employee/EmployeeCard.tsx";
@@ -9,22 +8,28 @@ import EmployeeAddCard from "../components/employee/EmployeeAddCard.tsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
-import Employee from "../interface/employee.ts";
 import useScheduleStore from "../store/schedule";
 import init from "../store/schedule/init.ts";
 import removeWorker from "../store/schedule/removeWorker.ts";
-import setWorkerList from "../store/schedule/setWorkerList.ts";
 import jsonToSchedule from "../store/schedule/jsonToSchedule.ts";
 import excelToSchedule from "../store/schedule/excelToSchedule.ts";
 
+const SectionLabel = ({ children }: { children: string }) => (
+  <Text
+    fontSize={"xs"}
+    fontWeight={"600"}
+    color={"fg.subtle"}
+    textTransform={"uppercase"}
+    letterSpacing={"wider"}
+  >
+    {children}
+  </Text>
+);
+
 const IndexPage = () => {
-  const [wk, setWorker] = useLocalStorage<Employee[]>("recentDayWorker", []);
-  const [rs, _] = useLocalStorage("recentSchedule", "");
-
+  const [rs] = useLocalStorage("recentSchedule", "");
   const navigate = useNavigate();
-
   const { isInit, worker } = useScheduleStore();
-
   const [form] = useForm();
 
   const handleSubmit = useCallback(
@@ -44,166 +49,217 @@ const IndexPage = () => {
           title: "시간표 생성",
           content:
             "이전에 생성된 시간표가 있어요. 다시 만들까요?\n(기존 내용은 삭제됩니다.)",
-          onOk: async () => {
+          onOk: () => {
             init(v.date, v.group);
-            setWorker(worker);
             navigate("/schedule");
           },
         });
         return;
       }
       init(v.date, v.group);
-      setWorker(worker);
       navigate("/schedule");
     },
-    [worker],
+    [worker, isInit],
   );
 
   return (
-    <Center>
-      <Form
-        form={form}
-        onFinish={handleSubmit}
-        initialValues={{
-          date: dayjs().add(1, "month"),
-          allowDayTwo: true,
-          group: 0,
-        }}
-      >
-        <Flex
-          p={6}
-          borderRadius={"xl"}
-          bg={"bg"}
-          border={"4px solid gray"}
-          flexDirection={"column"}
-          w={["24rem", null, "400px", "600px", "1080px"]}
-          gap={2}
-        >
-          <Flex gap={2} flexDir={"column"}>
-            <Text fontSize={"3xl"} fontWeight={"bold"}>
-              기본 설정
-            </Text>
-            <Flex flexDir={"column"}>
-              <Text fontWeight={"bold"}>월 선택</Text>
-              <Form.Item name={"date"} noStyle>
-                <DatePicker picker={"month"} />
-              </Form.Item>
-            </Flex>
-            <Flex flexDir={"column"}>
-              <Text fontWeight={"bold"}>1일 주간 근무조</Text>
-              <Form.Item name={"group"} noStyle>
-                <Select
-                  options={[
-                    { value: 0, label: "A" },
-                    { value: 1, label: "B" },
-                    { value: 2, label: "C" },
-                    { value: 3, label: "D" },
-                  ]}
-                />
-              </Form.Item>
-            </Flex>
-            <Flex gap={2}>
-              {/*<Button onClick={() => scheduleToExcel()} disabled={!isInit}>*/}
-              {/*  저장*/}
-              {/*</Button>*/}
-            </Flex>
-          </Flex>
-          <Flex flexDir={"column"} gap={4}>
-            <Flex flexDirection={"column"} gap={2}>
-              <Text fontWeight={"bold"}>주간 근무자</Text>
-              <Flex
-                alignItems={"center"}
-                gap={2}
-                overflowX={"scroll"}
-                scrollbar={"hidden"}
-              >
-                {worker.map((emp, idx) =>
-                  emp.isNight ? undefined : (
-                    <EmployeeCard
-                      employee={emp}
-                      onDelete={() => removeWorker(idx)}
-                    />
-                  ),
-                )}
-                <EmployeeAddCard />
-              </Flex>
-            </Flex>
-            <Flex flexDirection={"column"} gap={2}>
-              <Text fontWeight={"bold"}>야간 근무자</Text>
-              <Flex
-                alignItems={"center"}
-                gap={2}
-                overflowX={"scroll"}
-                scrollbar={"hidden"}
-              >
-                {worker.map((emp, idx) =>
-                  emp.isNight ? (
-                    <EmployeeCard
-                      night
-                      employee={emp}
-                      onDelete={() => removeWorker(idx)}
-                    />
-                  ) : undefined,
-                )}
-                <EmployeeAddCard night />
-              </Flex>
-            </Flex>
-            <Text
-              cursor={"pointer"}
-              color={"purple.400"}
-              onClick={() => {
-                if (!wk) {
-                  Modal.error({
-                    title: "근무자 불러오기",
-                    content: "최근 근무자가 없습니다.",
-                  });
-                  return;
-                }
-                setWorkerList(wk);
-              }}
-            >
-              최근 근무자 불러오기
-            </Text>
-          </Flex>
-          <Flex gap={2} mt={3}>
-            <Button flex={1} type={"submit"}>
-              시간표 만들기
-            </Button>
-            <Upload
-              customRequest={() => {}}
-              onChange={(e) => {
-                const data = e.fileList[0].originFileObj;
-                if (!data) return;
+    <Flex
+      justify={"center"}
+      align={"flex-start"}
+      minH={"100vh"}
+      bg={"bg"}
+      py={16}
+      px={6}
+    >
+      <Flex flexDir={"column"} w={"100%"} maxW={"900px"} gap={8}>
 
-                excelToSchedule(data);
-                navigate("/schedule");
-              }}
-              itemRender={() => <></>}
-            >
-              <Button>
-                <UploadOutlined />
-              </Button>
-            </Upload>
-            <Button
-              onClick={() => {
-                if (!rs) return;
-                jsonToSchedule(rs);
-                navigate("/schedule");
-              }}
-            >
-              <ClockCircleOutlined />
-            </Button>
-          </Flex>
-          {isInit && (
-            <Link to={"/schedule"} style={{ width: "100%" }}>
-              <Button bg={"purple.300"} color={"blackAlpha"} w={"100%"}>
-                최근 시간표 보기
-              </Button>
-            </Link>
-          )}
+        {/* 헤더 */}
+        <Flex flexDir={"column"} gap={1}>
+          <Text fontSize={"2xl"} fontWeight={"700"} color={"fg"}>
+            근무 시간표
+          </Text>
+          <Text fontSize={"sm"} color={"fg.subtle"}>
+            설정을 입력하고 시간표를 생성해주세요.
+          </Text>
         </Flex>
-      </Form>
-    </Center>
+
+        <Box borderTop={"1px solid"} borderColor={"border"} />
+
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          initialValues={{ date: dayjs().add(1, "month"), group: 0 }}
+        >
+          {/* 메인 컨텐츠 - 데스크탑 2컬럼 */}
+          <Flex flexDir={["column", null, "row"]} gap={8} align={"stretch"}>
+
+            {/* 왼쪽: 기본 설정 */}
+            <Flex flexDir={"column"} gap={4} w={["100%", null, "240px"]} flexShrink={0}>
+              <SectionLabel>기본 설정</SectionLabel>
+
+              <Flex flexDir={"column"} gap={1}>
+                <Text fontSize={"sm"} fontWeight={"500"} color={"fg"}>월 선택</Text>
+                <Form.Item name={"date"} noStyle>
+                  <DatePicker
+                    picker={"month"}
+                    style={{ width: "100%" }}
+                  />
+                </Form.Item>
+              </Flex>
+
+              <Flex flexDir={"column"} gap={1}>
+                <Text fontSize={"sm"} fontWeight={"500"} color={"fg"}>1일 근무조</Text>
+                <Form.Item name={"group"} noStyle>
+                  <Select
+                    style={{ width: "100%" }}
+                    options={[
+                      { value: 0, label: "A조" },
+                      { value: 1, label: "B조" },
+                      { value: 2, label: "C조" },
+                      { value: 3, label: "D조" },
+                    ]}
+                  />
+                </Form.Item>
+              </Flex>
+            </Flex>
+
+            {/* 데스크탑 수직 구분선 */}
+            <Box
+              display={["none", null, "block"]}
+              borderLeft={"1px solid"}
+              borderColor={"border"}
+            />
+
+            {/* 오른쪽: 근무자 */}
+            <Flex flexDir={"column"} gap={4} flex={1} minW={0}>
+              <Flex justify={"space-between"} align={"center"}>
+                <SectionLabel>근무자</SectionLabel>
+                <Flex gap={3} align={"center"}>
+                  <Flex align={"center"} gap={1}>
+                    <Box w={"8px"} h={"8px"} borderRadius={"sm"} bg={"bg.warning"} border={"1px solid"} borderColor={"border"} />
+                    <Text fontSize={"xs"} color={"fg.subtle"}>주간</Text>
+                  </Flex>
+                  <Flex align={"center"} gap={1}>
+                    <Box w={"8px"} h={"8px"} borderRadius={"sm"} bg={"bg.info"} border={"1px solid"} borderColor={"border"} />
+                    <Text fontSize={"xs"} color={"fg.subtle"}>야간</Text>
+                  </Flex>
+                </Flex>
+              </Flex>
+
+              {worker.length === 0 ? (
+                <Flex
+                  align={"center"}
+                  justify={"center"}
+                  flex={1}
+                  minH={"120px"}
+                  border={"1px dashed"}
+                  borderColor={"border"}
+                  borderRadius={"lg"}
+                >
+                  <Text fontSize={"sm"} color={"fg.muted"}>
+                    근무자를 추가해주세요
+                  </Text>
+                </Flex>
+              ) : (
+                <Flex
+                  gap={2}
+                  flexWrap={"wrap"}
+                >
+                  {worker.map((emp, idx) => (
+                    <EmployeeCard
+                      key={idx}
+                      employee={emp}
+                      night={emp.isNight}
+                      onDelete={() => removeWorker(idx)}
+                    />
+                  ))}
+                </Flex>
+              )}
+
+              <EmployeeAddCard />
+            </Flex>
+          </Flex>
+
+          <Box borderTop={"1px solid"} borderColor={"border"} my={8} />
+
+          {/* 액션 버튼 */}
+          <Flex flexDir={"column"} gap={2}>
+            <Flex gap={2}>
+              <Button
+                flex={1}
+                type={"submit"}
+                bg={"fg"}
+                color={"bg"}
+                borderRadius={"md"}
+                fontWeight={"600"}
+                fontSize={"sm"}
+                _hover={{ opacity: 0.85 }}
+                h={"38px"}
+              >
+                시간표 만들기
+              </Button>
+              <Upload
+                customRequest={() => {}}
+                onChange={(e) => {
+                  const data = e.fileList[0].originFileObj;
+                  if (!data) return;
+                  excelToSchedule(data);
+                  navigate("/schedule");
+                }}
+                itemRender={() => <></>}
+              >
+                <Button
+                  title={"엑셀로 불러오기"}
+                  variant={"outline"}
+                  borderColor={"border"}
+                  color={"fg"}
+                  borderRadius={"md"}
+                  h={"38px"}
+                  _hover={{ bg: "bg.subtle" }}
+                >
+                  <UploadOutlined />
+                </Button>
+              </Upload>
+              <Button
+                title={"최근 저장 시간표 불러오기"}
+                variant={"outline"}
+                borderColor={"border"}
+                color={"fg"}
+                borderRadius={"md"}
+                h={"38px"}
+                _hover={{ bg: "bg.subtle" }}
+                onClick={() => {
+                  if (!rs) return;
+                  jsonToSchedule(rs);
+                  navigate("/schedule");
+                }}
+              >
+                <ClockCircleOutlined />
+              </Button>
+            </Flex>
+
+            {isInit && (
+              <Link to={"/schedule"} style={{ width: "100%" }}>
+                <Button
+                  w={"100%"}
+                  variant={"outline"}
+                  borderColor={"border"}
+                  color={"fg.subtle"}
+                  borderRadius={"md"}
+                  fontWeight={"500"}
+                  fontSize={"sm"}
+                  h={"38px"}
+                  _hover={{ bg: "bg.subtle", color: "fg" }}
+                >
+                  최근 시간표 보기 →
+                </Button>
+              </Link>
+            )}
+          </Flex>
+        </Form>
+      </Flex>
+    </Flex>
   );
 };
+
 export default IndexPage;

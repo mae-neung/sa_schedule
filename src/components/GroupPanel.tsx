@@ -1,4 +1,4 @@
-import { Center, Flex, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import useScheduleStore from "../store/schedule";
 
 const GROUP_NAME = ["A", "B", "C", "D"];
@@ -15,28 +15,34 @@ const GroupPanel = ({ group, onClick }: GroupPanelProps) => {
 
   return (
     <Flex flexDir={"column"} gap={2}>
-      <Text fontWeight={"bold"}>조별 1인 근무횟수</Text>
-      <Flex flexDir={"column"}>
+      <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+        조별 1인 근무
+      </Text>
+      <Flex flexDir={"column"} gap={1}>
         {GROUP_NAME.map((name, idx) => (
           <Flex
-            gap={4}
-            py={2}
+            key={idx}
+            justify={"space-between"}
+            align={"center"}
+            px={2}
+            py={1}
+            borderRadius={"md"}
             cursor={"pointer"}
-            onClick={() => {
-              if (group === idx) {
-                onClick(-1);
-                return;
-              }
-              onClick(idx);
-            }}
+            bg={group === idx ? "bg.subtle" : "transparent"}
+            _hover={{ bg: "bg.subtle" }}
+            onClick={() => onClick(group === idx ? -1 : idx)}
           >
-            <Center fontWeight={"bold"}>{name}</Center>
-            <Center fontWeight={"bold"} color={"orange.300"}>
-              {dayGroup[idx]}
-            </Center>
-            <Center fontWeight={"bold"} color={"blue.300"}>
-              {nightGroup[idx]}
-            </Center>
+            <Text fontSize={"sm"} fontWeight={"600"} color={"fg"}>
+              {name}조
+            </Text>
+            <Flex gap={3}>
+              <Text fontSize={"sm"} color={"orange.400"} fontWeight={"600"}>
+                {dayGroup[idx]}
+              </Text>
+              <Text fontSize={"sm"} color={"blue.400"} fontWeight={"600"}>
+                {nightGroup[idx]}
+              </Text>
+            </Flex>
           </Flex>
         ))}
       </Flex>

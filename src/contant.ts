@@ -9,22 +9,22 @@ const WORK_TYPES_LABEL = [
   "특별 휴가",
 ];
 const BG_TYPES = [
-  "pink",
-  "white",
-  "blue",
-  "white",
-  "green",
-  "orange",
-  "silver",
+  "#FFE4E6", // 휴 - 연한 핑크
+  "#FFFFFF", // 주 - 흰색
+  "#DBEAFE", // 야 - 연한 파랑
+  "#F3F4F6", // 비 - 연한 회색
+  "#DCFCE7", // 연 - 연한 초록
+  "#FEF3C7", // 지정 휴무 - 연한 노랑
+  "#F3E8FF", // 특별 휴가 - 연한 보라
 ];
 const COLOR_TYPES = [
-  "red",
-  "black",
-  "silver",
-  "black",
-  "black",
-  "red",
-  "black",
+  "#E11D48", // 휴 - 로즈
+  "#374151", // 주 - 다크 그레이
+  "#1D4ED8", // 야 - 다크 블루
+  "#6B7280", // 비 - 그레이
+  "#15803D", // 연 - 다크 그린
+  "#D97706", // 지정 휴무 - 앰버
+  "#7C3AED", // 특별 휴가 - 퍼플
 ];
 const WEEKDAY = ["일", "월", "화", "수", "목", "금", "토"];
 const GROUP = ["A", "B", "C", "D"];

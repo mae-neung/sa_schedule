@@ -1,4 +1,4 @@
-import { Center, Flex, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import useScheduleStore from "../store/schedule";
 
 interface PersonalPanelProps {
@@ -12,29 +12,34 @@ const PersonalPanel = ({ emp, onClick }: PersonalPanelProps) => {
   if (!isInit) return <></>;
 
   return (
-    <Flex py={2} flexDir={"column"} gap={2}>
-      <Text fontWeight={"bold"}>1인 근무횟수</Text>
-      <Flex flexDir={"column"}>
+    <Flex flexDir={"column"} gap={2}>
+      <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+        1인 근무 횟수
+      </Text>
+      <Flex flexDir={"column"} gap={1}>
         {aloneCount.map((count, idx) => (
           <Flex
-            gap={2}
+            key={idx}
+            justify={"space-between"}
+            align={"center"}
+            px={2}
             py={1}
+            borderRadius={"md"}
             cursor={"pointer"}
-            onClick={() => {
-              if (emp === idx) {
-                onClick(undefined);
-                return;
-              }
-              onClick(idx);
-            }}
+            bg={emp === idx ? "bg.subtle" : "transparent"}
+            _hover={{ bg: "bg.subtle" }}
+            onClick={() => onClick(emp === idx ? undefined : idx)}
           >
-            <Center
-              fontWeight={"bold"}
-              color={worker[idx].isNight ? "blue.300" : "orange.300"}
+            <Text
+              fontSize={"sm"}
+              fontWeight={"500"}
+              color={worker[idx].isNight ? "blue.400" : "orange.400"}
             >
               {worker[idx].name}
-            </Center>
-            <Center fontWeight={"bold"}>{count}</Center>
+            </Text>
+            <Text fontSize={"sm"} fontWeight={"600"} color={"fg"}>
+              {count}
+            </Text>
           </Flex>
         ))}
       </Flex>
