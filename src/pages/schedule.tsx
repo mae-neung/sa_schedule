@@ -33,6 +33,7 @@ import updateWorker from "../store/schedule/updateWorker.ts";
 import addNew from "../store/schedule/addNew.ts";
 import matchSchedule from "../store/schedule/matchSchedule.ts";
 import matchDaySchedule from "../store/schedule/matchDaySchedule.ts";
+import equalizeAlone from "../store/schedule/equalizeAlone.ts";
 
 const CELL_W = "58px";
 const CELL_H = "30px";
@@ -546,6 +547,7 @@ const SchedulePage = () => {
                   changed = pd.some((v, i) => v !== nd[i]) || pn.some((v, i) => v !== nn[i]);
                   iter++;
                 }
+                equalizeAlone();
               }}
             >
               근무 배치

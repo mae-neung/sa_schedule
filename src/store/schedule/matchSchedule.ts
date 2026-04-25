@@ -21,9 +21,13 @@ const matchSchedule = () =>
         .reduce((max, curr) => (curr.value >= max.value ? curr : max)).index;
 
       oneCount.sort((a, b) => {
-        const aKey = (33 + storeGroup - a) % 4 === maxIndex ? 1 : 0;
-        const bKey = (33 + storeGroup - b) % 4 === maxIndex ? 1 : 0;
-        return aKey - bKey;
+        const aGroupKey = (33 + storeGroup - a) % 4 === maxIndex ? 1 : 0;
+        const bGroupKey = (33 + storeGroup - b) % 4 === maxIndex ? 1 : 0;
+        if (aGroupKey !== bGroupKey) return aGroupKey - bGroupKey;
+        // 같은 그룹 버킷이면: 혼자 근무자의 aloneCount 높은 날 먼저 처리
+        const aLone = sch.findIndex((w) => w[a] === 2);
+        const bLone = sch.findIndex((w) => w[b] === 2);
+        return (aLone > -1 ? aCount[aLone] : 0) - (bLone > -1 ? aCount[bLone] : 0);
       });
 
       const select = oneCount.pop()!;

@@ -6,10 +6,11 @@ import { Modal } from "antd";
 interface EmployeeCardProps {
   employee: Employee;
   onDelete: () => void;
+  onClick?: () => void;
   night?: boolean;
 }
 
-const EmployeeCard = ({ employee, onDelete, night }: EmployeeCardProps) => {
+const EmployeeCard = ({ employee, onDelete, onClick, night }: EmployeeCardProps) => {
   return (
     <Flex
       flexDir={"column"}
@@ -22,6 +23,8 @@ const EmployeeCard = ({ employee, onDelete, night }: EmployeeCardProps) => {
       minW={"80px"}
       gap={2}
       flexShrink={0}
+      cursor={onClick ? "pointer" : undefined}
+      onClick={onClick}
     >
       <Flex justify={"space-between"} align={"center"} gap={2}>
         <Text
@@ -37,13 +40,14 @@ const EmployeeCard = ({ employee, onDelete, night }: EmployeeCardProps) => {
           color={"fg.subtle"}
           _hover={{ color: "fg" }}
           fontSize={"10px"}
-          onClick={() =>
+          onClick={(e) => {
+            e.stopPropagation();
             Modal.confirm({
               title: "근무자 삭제",
               content: "선택한 근무자가 삭제됩니다.",
               onOk: onDelete,
-            })
-          }
+            });
+          }}
         >
           <CloseOutlined />
         </Box>

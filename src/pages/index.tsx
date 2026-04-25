@@ -1,12 +1,12 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { DatePicker, Form, Modal, Select, Upload } from "antd";
+import { DatePicker, Form, Input, Modal, Select, Switch, Upload } from "antd";
 import { ClockCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useForm } from "antd/es/form/Form";
 import EmployeeCard from "../components/employee/EmployeeCard.tsx";
 import EmployeeAddCard from "../components/employee/EmployeeAddCard.tsx";
 import { Link, useNavigate } from "react-router-dom";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import useScheduleStore from "../store/schedule";
 import init from "../store/schedule/init.ts";
@@ -14,6 +14,7 @@ import applyHolidays from "../store/schedule/applyHolidays.ts";
 import removeWorker from "../store/schedule/removeWorker.ts";
 import jsonToSchedule from "../store/schedule/jsonToSchedule.ts";
 import excelToSchedule from "../store/schedule/excelToSchedule.ts";
+import updateWorker from "../store/schedule/updateWorker.ts";
 
 const SectionLabel = ({ children }: { children: string }) => (
   <Text
@@ -32,6 +33,8 @@ const IndexPage = () => {
   const navigate = useNavigate();
   const { isInit, worker } = useScheduleStore();
   const [form] = useForm();
+  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [editForm] = useForm();
 
   const handleSubmit = useCallback(
     async (v: { date: dayjs.Dayjs; group: number }) => {
@@ -174,6 +177,14 @@ const IndexPage = () => {
                       employee={emp}
                       night={emp.isNight}
                       onDelete={() => removeWorker(idx)}
+                      onClick={() => {
+                        setEditIdx(idx);
+                        editForm.setFieldsValue({
+                          name: emp.name,
+                          isNight: emp.isNight,
+                          isNew: emp.isNew ?? false,
+                        });
+                      }}
                     />
                   ))}
                 </Flex>
@@ -261,6 +272,42 @@ const IndexPage = () => {
           </Flex>
         </Form>
       </Flex>
+
+      <Modal
+        title="근무자 정보 수정"
+        open={editIdx !== null}
+        onCancel={() => setEditIdx(null)}
+        onOk={() => editForm.submit()}
+        okText="저장"
+        cancelText="취소"
+      >
+        <Form
+          form={editForm}
+          layout="vertical"
+          style={{ marginTop: 16 }}
+          onFinish={(v) => {
+            if (editIdx === null) return;
+            updateWorker(editIdx, { ...worker[editIdx], name: v.name, isNight: v.isNight, isNew: v.isNew });
+            setEditIdx(null);
+          }}
+        >
+          <button type="submit" hidden />
+          <Form.Item name="name" label="이름" rules={[{ required: true, message: "이름을 입력해주세요" }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="isNight" label="근무 형태">
+            <Select
+              options={[
+                { value: false, label: "주간" },
+                { value: true, label: "야간" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="isNew" label="신입 여부" valuePropName="checked">
+            <Switch checkedChildren="신입" unCheckedChildren="일반" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Flex>
   );
 };
