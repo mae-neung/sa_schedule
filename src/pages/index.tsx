@@ -77,7 +77,7 @@ const IndexPage = () => {
       py={16}
       px={6}
     >
-      <Flex flexDir={"column"} w={"100%"} maxW={"900px"} gap={8}>
+      <Flex flexDir={"column"} w={"100%"} maxW={"900px"} minW={"900px"} gap={8}>
 
         {/* 헤더 */}
         <Flex flexDir={"column"} gap={1}>
