@@ -15,9 +15,6 @@ const GroupPanel = ({ group, onClick }: GroupPanelProps) => {
 
   return (
     <Flex flexDir={"column"} gap={2}>
-      <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
-        조별 1인 근무
-      </Text>
       <Flex flexDir={"column"} gap={1}>
         {GROUP_NAME.map((name, idx) => (
           <Flex

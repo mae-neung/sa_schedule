@@ -13,9 +13,6 @@ const PersonalPanel = ({ emp, onClick }: PersonalPanelProps) => {
 
   return (
     <Flex flexDir={"column"} gap={2}>
-      <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
-        1인 근무 횟수
-      </Text>
       <Flex flexDir={"column"} gap={1}>
         {aloneCount.map((count, idx) => (
           <Flex

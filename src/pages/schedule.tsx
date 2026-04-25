@@ -13,7 +13,7 @@ import {
   WORK_TYPES_LABEL,
 } from "../contant.ts";
 import dayjs from "dayjs";
-import { LeftOutlined } from "@ant-design/icons";
+import { DownOutlined, LeftOutlined } from "@ant-design/icons";
 import GroupPanel from "../components/GroupPanel.tsx";
 import PersonalPanel from "../components/PersonalPanel.tsx";
 import { useLocalStorage } from "@reactuses/core";
@@ -65,6 +65,9 @@ const SchedulePage = () => {
   const [workerHighlight, setWorkerHighlight] = useState<number>();
   const [editWorker, setEditWorker] = useState<{ idx: number; isNight: boolean; isNew: boolean }>();
   const [arranged, setArranged] = useState(false);
+  const [openHoliday, setOpenHoliday] = useState(true);
+  const [openGroup, setOpenGroup] = useState(true);
+  const [openPersonal, setOpenPersonal] = useState(true);
 
   const errorDays = useMemo(() => {
     if (!arranged) return new Set<number>();
@@ -663,54 +666,63 @@ const SchedulePage = () => {
         >
           {/* 목표 휴일 */}
           <Flex flexDir={"column"} gap={2}>
-            <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
-              목표 휴일
-            </Text>
-            <Flex flexDir={"column"} gap={1}>
-              {worker.map((w, idx) => (
-                <Flex key={idx} align={"center"} justify={"space-between"} px={2} py={1} borderRadius={"md"}>
-                  <Text fontSize={"sm"} fontWeight={"500"} color={w.isNight ? "blue.400" : "orange.400"} flex={1} lineClamp={1}>
-                    {w.name}
-                  </Text>
-                  <Flex align={"center"} gap={1}>
-                    <Button
-                      size={"xs"}
-                      variant={"ghost"}
-                      color={"fg.subtle"}
-                      minW={"18px"}
-                      h={"18px"}
-                      p={0}
-                      onClick={() =>
-                        updateWorker(idx, { ...w, targetWorkCount: Math.max(0, w.targetWorkCount - 1) })
-                      }
-                    >
-                      -
-                    </Button>
-                    <Text fontSize={"sm"} fontWeight={"600"} color={"fg"} minW={"24px"} textAlign={"center"}>
-                      {w.targetWorkCount}
-                    </Text>
-                    <Button
-                      size={"xs"}
-                      variant={"ghost"}
-                      color={"fg.subtle"}
-                      minW={"18px"}
-                      h={"18px"}
-                      p={0}
-                      onClick={() =>
-                        updateWorker(idx, { ...w, targetWorkCount: w.targetWorkCount + 1 })
-                      }
-                    >
-                      +
-                    </Button>
-                  </Flex>
-                </Flex>
-              ))}
+            <Flex align={"center"} justify={"space-between"} cursor={"pointer"} onClick={() => setOpenHoliday((v) => !v)}>
+              <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+                목표 휴일
+              </Text>
+              <Box fontSize={"10px"} color={"fg.subtle"} transition={"transform 0.2s"} transform={openHoliday ? "rotate(0deg)" : "rotate(-90deg)"}>
+                <DownOutlined />
+              </Box>
             </Flex>
+            {openHoliday && (
+              <Flex flexDir={"column"} gap={1}>
+                {worker.map((w, idx) => (
+                  <Flex key={idx} align={"center"} justify={"space-between"} px={2} py={1} borderRadius={"md"}>
+                    <Text fontSize={"sm"} fontWeight={"500"} color={w.isNight ? "blue.400" : "orange.400"} flex={1} lineClamp={1}>
+                      {w.name}
+                    </Text>
+                    <Flex align={"center"} gap={1}>
+                      <Button size={"xs"} variant={"ghost"} color={"fg.subtle"} minW={"18px"} h={"18px"} p={0}
+                        onClick={() => updateWorker(idx, { ...w, targetWorkCount: Math.max(0, w.targetWorkCount - 1) })}>
+                        -
+                      </Button>
+                      <Text fontSize={"sm"} fontWeight={"600"} color={"fg"} minW={"24px"} textAlign={"center"}>
+                        {w.targetWorkCount}
+                      </Text>
+                      <Button size={"xs"} variant={"ghost"} color={"fg.subtle"} minW={"18px"} h={"18px"} p={0}
+                        onClick={() => updateWorker(idx, { ...w, targetWorkCount: w.targetWorkCount + 1 })}>
+                        +
+                      </Button>
+                    </Flex>
+                  </Flex>
+                ))}
+              </Flex>
+            )}
           </Flex>
           <Box borderTop={"1px solid"} borderColor={"border"} />
-          <GroupPanel group={groupHighlight} onClick={(idx) => setGroupHighlight(idx)} />
+          <Flex flexDir={"column"} gap={2}>
+            <Flex align={"center"} justify={"space-between"} cursor={"pointer"} onClick={() => setOpenGroup((v) => !v)}>
+              <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+                조별 1인 근무
+              </Text>
+              <Box fontSize={"10px"} color={"fg.subtle"} transition={"transform 0.2s"} transform={openGroup ? "rotate(0deg)" : "rotate(-90deg)"}>
+                <DownOutlined />
+              </Box>
+            </Flex>
+            {openGroup && <GroupPanel group={groupHighlight} onClick={(idx) => setGroupHighlight(idx)} />}
+          </Flex>
           <Box borderTop={"1px solid"} borderColor={"border"} />
-          <PersonalPanel emp={workerHighlight} onClick={(idx) => setWorkerHighlight(idx)} />
+          <Flex flexDir={"column"} gap={2}>
+            <Flex align={"center"} justify={"space-between"} cursor={"pointer"} onClick={() => setOpenPersonal((v) => !v)}>
+              <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+                개인 현황
+              </Text>
+              <Box fontSize={"10px"} color={"fg.subtle"} transition={"transform 0.2s"} transform={openPersonal ? "rotate(0deg)" : "rotate(-90deg)"}>
+                <DownOutlined />
+              </Box>
+            </Flex>
+            {openPersonal && <PersonalPanel emp={workerHighlight} onClick={(idx) => setWorkerHighlight(idx)} />}
+          </Flex>
         </Flex>
       </Flex>
 
