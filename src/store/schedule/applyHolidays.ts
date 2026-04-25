@@ -35,6 +35,12 @@ const applyHolidays = async () => {
     // 네트워크 오류 시 주말 설정만 유지
   }
 
+  // 대체 공휴일: 공휴일이 일요일이면 다음 월요일 추가
+  const substitutes = holidayDays
+    .filter((d) => (weekday + d) % 7 === 0 && d + 1 < numDays)
+    .map((d) => d + 1);
+  holidayDays = [...new Set([...holidayDays, ...substitutes])];
+
   // 공휴일 당일 → 주간 2인
   const newSelectedDay = [...new Set([...selectedDay, ...holidayDays])];
 
