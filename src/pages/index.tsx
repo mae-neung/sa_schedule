@@ -10,6 +10,7 @@ import { useCallback } from "react";
 import { useLocalStorage } from "@reactuses/core";
 import useScheduleStore from "../store/schedule";
 import init from "../store/schedule/init.ts";
+import applyHolidays from "../store/schedule/applyHolidays.ts";
 import removeWorker from "../store/schedule/removeWorker.ts";
 import jsonToSchedule from "../store/schedule/jsonToSchedule.ts";
 import excelToSchedule from "../store/schedule/excelToSchedule.ts";
@@ -33,7 +34,7 @@ const IndexPage = () => {
   const [form] = useForm();
 
   const handleSubmit = useCallback(
-    (v: { date: dayjs.Dayjs; group: number }) => {
+    async (v: { date: dayjs.Dayjs; group: number }) => {
       if (
         worker.filter((w) => !w.isNight).length == 0 ||
         worker.filter((w) => w.isNight).length == 0
@@ -49,14 +50,16 @@ const IndexPage = () => {
           title: "시간표 생성",
           content:
             "이전에 생성된 시간표가 있어요. 다시 만들까요?\n(기존 내용은 삭제됩니다.)",
-          onOk: () => {
+          onOk: async () => {
             init(v.date, v.group);
+            await applyHolidays();
             navigate("/schedule");
           },
         });
         return;
       }
       init(v.date, v.group);
+      await applyHolidays();
       navigate("/schedule");
     },
     [worker, isInit],

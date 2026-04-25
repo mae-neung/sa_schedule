@@ -1,5 +1,5 @@
 import { Box, Button, Center, Flex, Text } from "@chakra-ui/react";
-import { Empty, Form, Input, InputNumber, Modal } from "antd";
+import { Empty, Form, Input, InputNumber, Modal, Popover } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScheduleStore from "../store/schedule";
@@ -28,6 +28,7 @@ import resetBase from "../store/schedule/resetBase.ts";
 import toJson from "../store/schedule/toJson.ts";
 import scheduleToExcel from "../store/schedule/scheduleToExcel.ts";
 import initNextMonth from "../store/schedule/initNextMonth.ts";
+import applyHolidays from "../store/schedule/applyHolidays.ts";
 import updateWorker from "../store/schedule/updateWorker.ts";
 import addNew from "../store/schedule/addNew.ts";
 import matchSchedule from "../store/schedule/matchSchedule.ts";
@@ -52,6 +53,7 @@ const SchedulePage = () => {
     group,
     selectedDay,
     selectedNight,
+    holidays,
     date,
   } = useScheduleStore();
 
@@ -210,52 +212,72 @@ const SchedulePage = () => {
         <Box overflowX={"auto"}>
           <Box minW={"max-content"}>
 
-            {/* 2인 근무 인디케이터 */}
-            <Flex borderBottom={"1px solid"} borderColor={"border"}>
-              <Box w={CELL_W} flexShrink={0} />
-              {dayWorkCount.map((_, idx) => (
-                <Center
-                  key={idx}
-                  flex={1}
-                  minW={"28px"}
-                  h={"6px"}
-                  cursor={"pointer"}
-                  onClick={() => setSelect(idx)}
-                >
-                  {selectedDay.includes(idx) && (
-                    <Box h={"4px"} bg={"orange.400"} w={"100%"} borderRadius={"full"} />
-                  )}
-                  {selectedNight.includes(idx) && (
-                    <Box h={"4px"} bg={"blue.400"} w={"100%"} borderRadius={"full"} />
-                  )}
-                </Center>
-              ))}
-              {Array.from({ length: EXTRA_COLS }).map((_, i) => (
-                <Box key={i} flex={1} minW={"28px"} />
-              ))}
-            </Flex>
-
-            {/* 날짜 행 */}
+            {/* 날짜 + 2인 근무 인디케이터 */}
             <Flex borderBottom={"1px solid"} borderColor={"border"} bg={"bg.surface"}>
               <Center w={CELL_W} flexShrink={0} fontSize={"sm"} color={"fg.subtle"} fontWeight={"600"}>
                 날짜
               </Center>
-              {dayWorkCount.map((_, idx) => (
-                <Center
-                  key={idx}
-                  flex={1}
-                  minW={"28px"}
-                  py={1}
-                  fontSize={"sm"}
-                  fontWeight={"600"}
-                  color={"fg"}
-                  cursor={"pointer"}
-                  onClick={() => setSelect(idx)}
-                  _hover={{ bg: "bg.hover" }}
-                >
-                  {idx + 1}
-                </Center>
-              ))}
+              {dayWorkCount.map((_, idx) => {
+                const hasDay = selectedDay.includes(idx);
+                const hasNight = selectedNight.includes(idx);
+                return (
+                  <Popover
+                    key={idx}
+                    trigger="click"
+                    open={select === idx}
+                    onOpenChange={(open) => { if (!open) setSelect(undefined); }}
+                    content={
+                      <Flex flexDir={"column"} gap={1} w={"120px"}>
+                        <Button
+                          size="xs"
+                          variant={"outline"}
+                          color={hasDay ? "orange.500" : "fg.subtle"}
+                          borderColor={hasDay ? "orange.400" : "border"}
+                          bg={hasDay ? "bg.warning" : "transparent"}
+                          onClick={() => handleSelect()}
+                        >
+                          {hasDay ? "주간 2인 해제" : "주간 2인 설정"}
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant={"outline"}
+                          color={hasNight ? "blue.500" : "fg.subtle"}
+                          borderColor={hasNight ? "blue.400" : "border"}
+                          bg={hasNight ? "bg.info" : "transparent"}
+                          onClick={() => handleSelect(true)}
+                        >
+                          {hasNight ? "야간 2인 해제" : "야간 2인 설정"}
+                        </Button>
+                      </Flex>
+                    }
+                  >
+                    <Flex
+                      flexDir={"column"}
+                      align={"center"}
+                      justify={"center"}
+                      flex={1}
+                      minW={"28px"}
+                      py={"3px"}
+                      gap={"2px"}
+                      cursor={"pointer"}
+                      onClick={() => setSelect(idx)}
+                      _hover={{ bg: "bg.hover" }}
+                    >
+                      <Text fontSize={"sm"} fontWeight={"600"} color={holidays.includes(idx) ? "red.500" : "fg"} lineHeight={1}>
+                        {idx + 1}
+                      </Text>
+                      <Flex gap={"2px"} h={"6px"} align={"center"}>
+                        {hasDay && (
+                          <Box w={"5px"} h={"5px"} bg={"orange.400"} borderRadius={"full"} flexShrink={0} />
+                        )}
+                        {hasNight && (
+                          <Box w={"5px"} h={"5px"} bg={"blue.400"} borderRadius={"full"} flexShrink={0} />
+                        )}
+                      </Flex>
+                    </Flex>
+                  </Popover>
+                );
+              })}
               {Array.from({ length: EXTRA_COLS }).map((_, i) => (
                 <Box key={i} flex={1} minW={"28px"} />
               ))}
@@ -587,7 +609,7 @@ const SchedulePage = () => {
                   title: "다음달 근무표 생성",
                   content:
                     "현재 시간표를 기준으로 다음달 시간표를 생성합니다.\n기존에 적용된 내용은 다음달 시간표 저장시까지 유지됩니다.",
-                  onOk: () => initNextMonth(),
+                  onOk: async () => { initNextMonth(); await applyHolidays(); },
                 })
               }
             >
@@ -630,33 +652,6 @@ const SchedulePage = () => {
         </Flex>
       </Flex>
 
-      {/* 2인 근무일 선택 모달 */}
-      <Modal
-        open={!!select}
-        title={"2인 근무일 선택"}
-        footer={null}
-        onCancel={() => setSelect(undefined)}
-      >
-        <Flex flexDir={"column"} gap={2} pt={2}>
-          <Text fontSize={"sm"} color={"fg.subtle"}>
-            2인 근무를 원하는 유형을 선택해주세요.
-          </Text>
-          <Button
-            variant={"outline"}
-            borderColor={"border"}
-            onClick={() => handleSelect()}
-          >
-            {selectedDay.includes(select!) ? "주간 2인 해제" : "주간 2인 설정"}
-          </Button>
-          <Button
-            variant={"outline"}
-            borderColor={"border"}
-            onClick={() => handleSelect(true)}
-          >
-            {selectedNight.includes(select!) ? "야간 2인 해제" : "야간 2인 설정"}
-          </Button>
-        </Flex>
-      </Modal>
     </Flex>
   );
 };

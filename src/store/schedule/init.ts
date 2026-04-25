@@ -17,20 +17,8 @@ const init = (date: Dayjs, group: number) =>
 
     const target = date.set("date", 1);
 
-    const selectedDay = [];
-    const selectedNight = [];
-
     const weekday = target.day();
     const numDays = target.daysInMonth();
-
-    for (let i = 0; i < target.daysInMonth(); i++) {
-      if ([5, 6].includes((weekday + i) % 7)) {
-        selectedNight.push(i);
-      }
-      if ((weekday + i) % 7 == 6) {
-        selectedDay.push(i);
-      }
-    }
 
     resetWorkCount(true);
     resetWorkCount();
@@ -41,8 +29,8 @@ const init = (date: Dayjs, group: number) =>
       weekday: weekday,
       numDays: numDays,
       schedule: Array(worker.length).fill(Array(numDays).fill(0)),
-      selectedDay: selectedDay,
-      selectedNight: selectedNight,
+      selectedDay: [],
+      selectedNight: [],
       aloneCount: Array(worker.length).fill(0),
       dayGroup: [0, 0, 0, 0],
       nightGroup: [0, 0, 0, 0],

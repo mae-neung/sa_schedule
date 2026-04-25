@@ -36,18 +36,6 @@ const initNextMonth = () =>
         schedule[i].length - 1 - schedule[i].lastIndexOf(0);
     }
 
-    /* 2인근무일 기본 설정 로직 */
-    const selectedDay = [];
-    const selectedNight = [];
-    for (let i = 0; i < target.daysInMonth(); i++) {
-      if ([5, 6].includes((weekday + i) % 7)) {
-        selectedNight.push(i);
-      }
-      if ((weekday + i) % 7 == 6) {
-        selectedDay.push(i);
-      }
-    }
-
     /* 근무수 초기화 */
     resetWorkCount(true);
     resetWorkCount();
@@ -58,8 +46,8 @@ const initNextMonth = () =>
       weekday: weekday,
       numDays: numDays,
       schedule: sch,
-      selectedDay: selectedDay,
-      selectedNight: selectedNight,
+      selectedDay: [],
+      selectedNight: [],
       aloneCount: Array(worker.length).fill(0),
       dayGroup: [0, 0, 0, 0],
       nightGroup: [0, 0, 0, 0],

@@ -28,7 +28,7 @@ const EmployeeCard = ({ employee, onDelete, night }: EmployeeCardProps) => {
           fontWeight={"600"}
           fontSize={"sm"}
           color={employee.isNew ? "brand" : "fg"}
-          noOfLines={1}
+          lineClamp={1}
         >
           {employee.name}
         </Text>

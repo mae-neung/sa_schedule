@@ -17,6 +17,7 @@ const useScheduleStore = create<Schedule>()(
       nightGroup: [0, 0, 0, 0],
       selectedDay: [],
       selectedNight: [],
+      holidays: [],
       dayWorkCount: [],
       nightWorkCount: [],
     }),
