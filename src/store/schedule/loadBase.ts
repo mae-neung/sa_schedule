@@ -1,8 +1,7 @@
-import useScheduleStore from "./index.ts";
 import jsonToSchedule from "./jsonToSchedule.ts";
 
 const loadBase = () => {
-  const { base } = useScheduleStore.getState();
+  const base = localStorage.getItem("schedule-base");
   if (!base) return;
   jsonToSchedule(base);
 };

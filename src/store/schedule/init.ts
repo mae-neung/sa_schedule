@@ -49,7 +49,6 @@ const init = (date: Dayjs, group: number) =>
       dayWorkCount: Array(date.daysInMonth()).fill(0),
       nightWorkCount: Array(date.daysInMonth()).fill(0),
       group: group,
-      base: undefined,
       isInit: true,
     };
   });

@@ -1,5 +1,3 @@
-import useScheduleStore from "./index.ts";
-
-const resetBase = () => useScheduleStore.setState(() => ({ base: undefined }));
+const resetBase = () => localStorage.removeItem("schedule-base");
 
 export default resetBase;

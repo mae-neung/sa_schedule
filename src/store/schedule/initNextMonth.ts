@@ -66,7 +66,6 @@ const initNextMonth = () =>
       dayWorkCount: Array(target.daysInMonth()).fill(0),
       nightWorkCount: Array(target.daysInMonth()).fill(0),
       group: (group + prev.daysInMonth()) % 4,
-      base: undefined,
       isInit: true,
     };
   });

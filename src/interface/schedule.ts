@@ -15,7 +15,6 @@ interface Schedule {
   dayWorkCount: Array<number>;
   nightWorkCount: Array<number>;
   aloneCount: Array<number>;
-  base?: string;
   createdAt?: string;
 }
 

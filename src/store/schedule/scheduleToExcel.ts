@@ -16,7 +16,6 @@ const scheduleToExcel = async () => {
     aloneCount,
     dayGroup,
     dayWorkCount,
-    base,
     weekday,
     date,
   } = useScheduleStore.getState();
@@ -91,7 +90,7 @@ const scheduleToExcel = async () => {
   selectedNightSheet?.addRows([selectedNightDataRows]);
 
   const baseSheet = workbook.getWorksheet("base");
-  baseSheet?.addRows([[base ?? ""]]);
+  baseSheet?.addRows([[localStorage.getItem("schedule-base") ?? ""]]);
 
   const scheduleSheet = workbook.getWorksheet("시간표");
   if (!scheduleSheet) return;

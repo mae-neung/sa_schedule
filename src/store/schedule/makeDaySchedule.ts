@@ -12,9 +12,9 @@ const makeDaySchedule = () =>
       selectedDay,
       dayGroup,
       dayWorkCount,
-      base,
     } = state;
 
+    const base = localStorage.getItem("schedule-base");
     if (base) jsonToSchedule(base);
 
     const sch = schedule.map((arr) => [...arr]);

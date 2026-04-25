@@ -110,6 +110,7 @@ const excelToSchedule = async (file: RcFile) => {
     if (!baseSheet) return {};
     const baseRow = baseSheet.getRow(1);
     const base = baseRow.getCell(1).value as string;
+    if (base) localStorage.setItem("schedule-base", base);
 
     return {
       isInit: true,
@@ -126,7 +127,6 @@ const excelToSchedule = async (file: RcFile) => {
       nightWorkCount: nightWorkCount,
       dayGroup: dayGroupCount,
       nightGroup: nightGroupCount,
-      base: base,
     };
   });
 };
