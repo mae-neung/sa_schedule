@@ -583,7 +583,6 @@ const SchedulePage = () => {
                   }),
               },
               { label: "신입 추가", onClick: handleAddNew },
-              { label: "빈칸 배치", onClick: () => matchSchedule() },
             ].map(({ label, onClick }) => (
               <Button
                 key={label}

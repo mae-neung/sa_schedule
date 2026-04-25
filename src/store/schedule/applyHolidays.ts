@@ -42,8 +42,12 @@ const applyHolidays = async () => {
   const holidayEves = holidayDays.map((d) => d - 1).filter((d) => d >= 0);
   const newSelectedNight = [...new Set([...selectedNight, ...holidayEves])];
 
-  // 목표 휴일 수 = 주말(토/일) + 공휴일 (중복 제거)
-  const restDays = new Set([...selectedDay, ...holidayDays]);
+  // 목표 휴일 수 = 주말(토/일) + 공휴일 (중복 제거, 일요일은 2인 설정 제외지만 휴일로 카운트)
+  const sundays: number[] = [];
+  for (let i = 0; i < numDays; i++) {
+    if ((weekday + i) % 7 === 0) sundays.push(i);
+  }
+  const restDays = new Set([...selectedDay, ...sundays, ...holidayDays]);
   const targetWorkCount = restDays.size;
 
   useScheduleStore.setState({
