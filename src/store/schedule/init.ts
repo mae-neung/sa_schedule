@@ -31,6 +31,7 @@ const init = (date: Dayjs, group: number) =>
       schedule: Array(worker.length).fill(Array(numDays).fill(0)),
       selectedDay: [],
       selectedNight: [],
+      holidays: [],
       aloneCount: Array(worker.length).fill(0),
       dayGroup: [0, 0, 0, 0],
       nightGroup: [0, 0, 0, 0],

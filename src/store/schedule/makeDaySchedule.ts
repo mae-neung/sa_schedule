@@ -12,6 +12,7 @@ const makeDaySchedule = () =>
       selectedDay,
       dayGroup,
       dayWorkCount,
+      group: storeGroup,
     } = state;
 
     const base = localStorage.getItem("schedule-base");
@@ -23,16 +24,13 @@ const makeDaySchedule = () =>
     const wk = worker.map((v) => ({ ...v }));
     const aCount = [...aloneCount];
 
+    // 우선순위 날짜(2인 지정일) 먼저 배치
     for (const date of selectedDay)
       applySchedule(date, sch, wk, aCount, workCount, group);
 
-    /* 1인 근무자 배치 */
-    for (let day = 0; day < numDays; day++)
-      if (workCount[day] < 2)
-        applySchedule(day, sch, wk, aCount, workCount, group);
-
-    let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i);
-    // shuffle
+    // 나머지는 그룹 균등화 루프에서 처리
+    let ranDate: number[] = Array.from({ length: numDays }, (_, i) => i)
+      .filter((d) => workCount[d] < 2);
     ranDate = ranDate.sort(() => Math.random() - 0.5);
 
     while (ranDate.length > 0) {
@@ -41,8 +39,8 @@ const makeDaySchedule = () =>
         .reduce((min, curr) => (curr.value < min.value ? curr : min)).index;
 
       ranDate.sort((a, b) => {
-        const aKey = a % 4 === minIndex ? 0 : 1;
-        const bKey = b % 4 === minIndex ? 0 : 1;
+        const aKey = (32 + storeGroup - a) % 4 === minIndex ? 0 : 1;
+        const bKey = (32 + storeGroup - b) % 4 === minIndex ? 0 : 1;
         return aKey - bKey;
       });
 

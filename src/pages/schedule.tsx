@@ -1,5 +1,5 @@
 import { Box, Button, Center, Flex, Text } from "@chakra-ui/react";
-import { Empty, Form, Input, InputNumber, Modal, Popover } from "antd";
+import { Empty, Form, Input, InputNumber, Modal, Popover, Select, Switch } from "antd";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScheduleStore from "../store/schedule";
@@ -32,6 +32,7 @@ import applyHolidays from "../store/schedule/applyHolidays.ts";
 import updateWorker from "../store/schedule/updateWorker.ts";
 import addNew from "../store/schedule/addNew.ts";
 import matchSchedule from "../store/schedule/matchSchedule.ts";
+import matchDaySchedule from "../store/schedule/matchDaySchedule.ts";
 
 const CELL_W = "58px";
 const CELL_H = "30px";
@@ -60,6 +61,7 @@ const SchedulePage = () => {
   const [select, setSelect] = useState<number>();
   const [groupHighlight, setGroupHighlight] = useState<number>(-1);
   const [workerHighlight, setWorkerHighlight] = useState<number>();
+  const [editWorker, setEditWorker] = useState<{ idx: number; isNight: boolean; isNew: boolean }>();
 
   const handleSelect = useCallback(
     (night?: boolean) => {
@@ -79,38 +81,16 @@ const SchedulePage = () => {
     [select, selectedNight, selectedDay],
   );
 
-  const handleChange = useCallback(
-    (idx: number, type: "rest" | "workType") => {
+  const handleWorkerEdit = useCallback(
+    (idx: number) => {
       if (localStorage.getItem("schedule-base")) {
         Modal.error({
           title: "시간표 기본정보 변경",
-          content:
-            "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
+          content: "시간표가 생성된 상태에서는 변경 불가능해요. 리셋후에 변경해주세요.",
         });
         return;
       }
-      if (type === "workType") {
-        const emp = { ...worker[idx] };
-        emp.isNight = !emp.isNight;
-        updateWorker(idx, emp);
-        return;
-      }
-      if (type === "rest") {
-        let numRest = 0;
-        Modal.confirm({
-          onOk: () => {
-            if (numRest == 0) return;
-            const emp = { ...worker[idx] };
-            emp.targetWorkCount = numRest;
-            updateWorker(idx, emp);
-          },
-          title: "목표 휴일 변경",
-          content: (
-            <InputNumber onInput={(v) => (numRest = Number.parseInt(v))} />
-          ),
-        });
-        return;
-      }
+      setEditWorker({ idx, isNight: worker[idx].isNight, isNew: worker[idx].isNew ?? false });
     },
     [worker],
   );
@@ -332,7 +312,7 @@ const SchedulePage = () => {
                       cursor={"pointer"}
                       borderRight={"1px solid"}
                       borderColor={"border"}
-                      onClick={() => handleChange(idx, "workType")}
+                      onClick={() => handleWorkerEdit(idx)}
                       px={1}
                     >
                       {worker[idx].name}
@@ -376,8 +356,6 @@ const SchedulePage = () => {
                       py={1}
                       fontSize={"sm"}
                       color={"orange.400"}
-                      cursor={"pointer"}
-                      onClick={() => handleChange(idx, "rest")}
                     >
                       {worker[idx].targetWorkCount}
                     </Center>
@@ -405,7 +383,7 @@ const SchedulePage = () => {
                       cursor={"pointer"}
                       borderRight={"1px solid"}
                       borderColor={"border"}
-                      onClick={() => handleChange(idx, "workType")}
+                      onClick={() => handleWorkerEdit(idx)}
                       px={1}
                     >
                       {worker[idx].name}
@@ -449,8 +427,6 @@ const SchedulePage = () => {
                       py={1}
                       fontSize={"sm"}
                       color={"orange.400"}
-                      cursor={"pointer"}
-                      onClick={() => handleChange(idx, "rest")}
                     >
                       {worker[idx].targetWorkCount}
                     </Center>
@@ -559,6 +535,17 @@ const SchedulePage = () => {
                 else saveBase();
                 makeDaySchedule();
                 makeNightSchedule();
+                // 주간/야간 모두 배치 불가능할 때까지 반복
+                let changed = true;
+                let iter = 0;
+                while (changed && iter < 20) {
+                  const { dayWorkCount: pd, nightWorkCount: pn } = useScheduleStore.getState();
+                  matchDaySchedule();
+                  matchSchedule();
+                  const { dayWorkCount: nd, nightWorkCount: nn } = useScheduleStore.getState();
+                  changed = pd.some((v, i) => v !== nd[i]) || pn.some((v, i) => v !== nn[i]);
+                  iter++;
+                }
               }}
             >
               근무 배치
@@ -646,11 +633,97 @@ const SchedulePage = () => {
           gap={4}
           overflowY={"auto"}
         >
+          {/* 목표 휴일 */}
+          <Flex flexDir={"column"} gap={2}>
+            <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
+              목표 휴일
+            </Text>
+            <Flex flexDir={"column"} gap={1}>
+              {worker.map((w, idx) => (
+                <Flex key={idx} align={"center"} justify={"space-between"} px={2} py={1} borderRadius={"md"}>
+                  <Text fontSize={"sm"} fontWeight={"500"} color={w.isNight ? "blue.400" : "orange.400"} flex={1} lineClamp={1}>
+                    {w.name}
+                  </Text>
+                  <Flex align={"center"} gap={1}>
+                    <Button
+                      size={"xs"}
+                      variant={"ghost"}
+                      color={"fg.subtle"}
+                      minW={"18px"}
+                      h={"18px"}
+                      p={0}
+                      onClick={() =>
+                        updateWorker(idx, { ...w, targetWorkCount: Math.max(0, w.targetWorkCount - 1) })
+                      }
+                    >
+                      -
+                    </Button>
+                    <Text fontSize={"sm"} fontWeight={"600"} color={"fg"} minW={"24px"} textAlign={"center"}>
+                      {w.targetWorkCount}
+                    </Text>
+                    <Button
+                      size={"xs"}
+                      variant={"ghost"}
+                      color={"fg.subtle"}
+                      minW={"18px"}
+                      h={"18px"}
+                      p={0}
+                      onClick={() =>
+                        updateWorker(idx, { ...w, targetWorkCount: w.targetWorkCount + 1 })
+                      }
+                    >
+                      +
+                    </Button>
+                  </Flex>
+                </Flex>
+              ))}
+            </Flex>
+          </Flex>
+          <Box borderTop={"1px solid"} borderColor={"border"} />
           <GroupPanel group={groupHighlight} onClick={(idx) => setGroupHighlight(idx)} />
           <Box borderTop={"1px solid"} borderColor={"border"} />
           <PersonalPanel emp={workerHighlight} onClick={(idx) => setWorkerHighlight(idx)} />
         </Flex>
       </Flex>
+
+      {/* 근무자 정보 수정 모달 */}
+      <Modal
+        open={editWorker !== undefined}
+        title={"근무자 정보 수정"}
+        okText={"저장"}
+        cancelText={"취소"}
+        onCancel={() => setEditWorker(undefined)}
+        onOk={() => {
+          if (!editWorker) return;
+          updateWorker(editWorker.idx, {
+            ...worker[editWorker.idx],
+            isNight: editWorker.isNight,
+            isNew: editWorker.isNew,
+          });
+          setEditWorker(undefined);
+        }}
+      >
+        <Form layout={"vertical"} style={{ paddingTop: 8 }}>
+          <Form.Item label={"근무 형태"}>
+            <Select
+              value={editWorker?.isNight ? "야간" : "주간"}
+              onChange={(v) => setEditWorker((p) => p && ({ ...p, isNight: v === "야간" }))}
+              options={[
+                { label: "주간", value: "주간" },
+                { label: "야간", value: "야간" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item label={"신입 여부"}>
+            <Switch
+              checked={editWorker?.isNew ?? false}
+              onChange={(v) => setEditWorker((p) => p && ({ ...p, isNew: v }))}
+              checkedChildren={"신입"}
+              unCheckedChildren={"일반"}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
 
     </Flex>
   );

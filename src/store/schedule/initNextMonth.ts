@@ -48,6 +48,7 @@ const initNextMonth = () =>
       schedule: sch,
       selectedDay: [],
       selectedNight: [],
+      holidays: [],
       aloneCount: Array(worker.length).fill(0),
       dayGroup: [0, 0, 0, 0],
       nightGroup: [0, 0, 0, 0],

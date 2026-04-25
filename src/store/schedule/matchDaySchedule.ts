@@ -1,17 +1,17 @@
 import useScheduleStore from "./index.ts";
 import applySchedule from "./applySchedule.ts";
 
-const matchSchedule = () =>
+const matchDaySchedule = () =>
   useScheduleStore.setState((state) => {
-    const { schedule, nightWorkCount, nightGroup, worker, aloneCount, group: storeGroup } = state;
+    const { schedule, dayWorkCount, dayGroup, worker, aloneCount, group: storeGroup } = state;
 
-    const workCount = [...nightWorkCount];
+    const workCount = [...dayWorkCount];
     const sch = schedule.map((arr) => [...arr]);
-    const group = [...nightGroup];
+    const group = [...dayGroup];
     const wk = worker.map((v) => ({ ...v }));
     const aCount = [...aloneCount];
 
-    let oneCount = nightWorkCount.map((c, idx) => (c == 1 ? idx : -1));
+    let oneCount = dayWorkCount.map((c, idx) => (c === 1 ? idx : -1));
     oneCount = oneCount.filter((v) => v > -1);
 
     while (oneCount.length > 0) {
@@ -21,24 +21,24 @@ const matchSchedule = () =>
         .reduce((max, curr) => (curr.value >= max.value ? curr : max)).index;
 
       oneCount.sort((a, b) => {
-        const aKey = (33 + storeGroup - a) % 4 === maxIndex ? 1 : 0;
-        const bKey = (33 + storeGroup - b) % 4 === maxIndex ? 1 : 0;
+        const aKey = (32 + storeGroup - a) % 4 === maxIndex ? 1 : 0;
+        const bKey = (32 + storeGroup - b) % 4 === maxIndex ? 1 : 0;
         return aKey - bKey;
       });
 
       const select = oneCount.pop()!;
 
       if (workCount[select] < 2)
-        applySchedule(select, sch, wk, aCount, workCount, group, true);
+        applySchedule(select, sch, wk, aCount, workCount, group);
     }
 
     return {
       schedule: sch,
-      nightGroup: group,
+      dayGroup: group,
       aloneCount: aCount,
       worker: wk,
-      nightWorkCount: workCount,
+      dayWorkCount: workCount,
     };
   });
 
-export default matchSchedule;
+export default matchDaySchedule;
