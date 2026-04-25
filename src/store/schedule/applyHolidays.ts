@@ -13,7 +13,7 @@ const applyHolidays = async () => {
   const selectedNight: number[] = [];
   for (let i = 0; i < numDays; i++) {
     const wd = (weekday + i) % 7;
-    if (wd === 0 || wd === 6) selectedDay.push(i);    // 일/토 → 주간 2인
+    if (wd === 6) selectedDay.push(i);    // 토 → 주간 2인
     if (wd === 5 || wd === 6) selectedNight.push(i);  // 금/토 전날 야간 2인
   }
 

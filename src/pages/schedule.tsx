@@ -1,6 +1,6 @@
 import { Box, Button, Center, Flex, Text } from "@chakra-ui/react";
 import { Empty, Form, Input, InputNumber, Modal, Popover, Select, Switch } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScheduleStore from "../store/schedule";
 import {
@@ -34,6 +34,7 @@ import addNew from "../store/schedule/addNew.ts";
 import matchSchedule from "../store/schedule/matchSchedule.ts";
 import matchDaySchedule from "../store/schedule/matchDaySchedule.ts";
 import equalizeAlone from "../store/schedule/equalizeAlone.ts";
+import fillEmpty from "../store/schedule/fillEmpty.ts";
 
 const CELL_W = "58px";
 const CELL_H = "30px";
@@ -63,6 +64,22 @@ const SchedulePage = () => {
   const [groupHighlight, setGroupHighlight] = useState<number>(-1);
   const [workerHighlight, setWorkerHighlight] = useState<number>();
   const [editWorker, setEditWorker] = useState<{ idx: number; isNight: boolean; isNew: boolean }>();
+  const [arranged, setArranged] = useState(false);
+
+  const errorDays = useMemo(() => {
+    if (!arranged) return new Set<number>();
+    const errors = new Set<number>();
+    for (let i = 0; i < numDays; i++) {
+      if (dayWorkCount[i] === 0 || nightWorkCount[i] === 0) {
+        errors.add(i);
+      } else if (selectedDay.includes(i) && dayWorkCount[i] < 2) {
+        errors.add(i);
+      } else if (selectedNight.includes(i) && nightWorkCount[i] < 2) {
+        errors.add(i);
+      }
+    }
+    return errors;
+  }, [arranged, dayWorkCount, nightWorkCount, selectedDay, selectedNight, numDays]);
 
   const handleSelect = useCallback(
     (night?: boolean) => {
@@ -243,6 +260,7 @@ const SchedulePage = () => {
                       cursor={"pointer"}
                       onClick={() => setSelect(idx)}
                       _hover={{ bg: "bg.hover" }}
+                      bg={errorDays.has(idx) ? "rgba(239,68,68,0.1)" : undefined}
                     >
                       <Text fontSize={"sm"} fontWeight={"600"} color={holidays.includes(idx) ? "red.500" : "fg"} lineHeight={1}>
                         {idx + 1}
@@ -548,6 +566,8 @@ const SchedulePage = () => {
                   iter++;
                 }
                 equalizeAlone();
+                fillEmpty();
+                setArranged(true);
               }}
             >
               근무 배치
@@ -559,7 +579,7 @@ const SchedulePage = () => {
                   Modal.confirm({
                     title: "근무 배치",
                     content: "근무 배치를 초기화해요. (현재 스케줄이 삭제됩니다.)",
-                    onOk: () => { loadBase(); resetBase(); },
+                    onOk: () => { loadBase(); resetBase(); setArranged(false); },
                   }),
               },
               { label: "신입 추가", onClick: handleAddNew },
@@ -622,6 +642,13 @@ const SchedulePage = () => {
             </Button>
           </Flex>
         </Flex>
+        {arranged && errorDays.size > 0 && (
+          <Box px={6} py={3} bg={"red.50"} borderTop={"1px solid"} borderColor={"red.200"} flexShrink={0}>
+            <Text fontSize={"sm"} color={"red.600"}>
+              근무자가 없는 날이 있거나, 규칙에 어긋나는 근무일이 있습니다. 조건을 변경하거나, 근무배치를 다시 진행해주세요.
+            </Text>
+          </Box>
+        )}
         </Flex>
 
         {/* 상세정보 사이드패널 */}

@@ -287,6 +287,15 @@ const IndexPage = () => {
           style={{ marginTop: 16 }}
           onFinish={(v) => {
             if (editIdx === null) return;
+            const updated = worker.map((w, i) => i === editIdx ? { ...w, ...v } : w);
+            if (updated.filter((w) => !w.isNight).length === 0) {
+              Modal.error({ title: "근무자 정보 수정", content: "주간 근무자가 최소 1명은 있어야해요." });
+              return;
+            }
+            if (updated.filter((w) => w.isNight).length === 0) {
+              Modal.error({ title: "근무자 정보 수정", content: "야간 근무자가 최소 1명은 있어야해요." });
+              return;
+            }
             updateWorker(editIdx, { ...worker[editIdx], name: v.name, isNight: v.isNight, isNew: v.isNew });
             setEditIdx(null);
           }}

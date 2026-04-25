@@ -29,8 +29,11 @@ const changeSchedule = (
 
     const dGroupIdx = (32 + group - day) % 4;
     const nGroupIdx = (32 + group - day - 1) % 4;
-    /* 변경 사항이 없을 경우*/
-    if (sch[emp][day] == workType) return {};
+    /* 같은 근무형태 클릭 시 휴로 토글 */
+    if (sch[emp][day] == workType) {
+      if (workType === 0) return {};
+      workType = 0;
+    }
 
     /* 휴무로 변경하는 경우 */
     if (workType === 0) {
@@ -115,7 +118,6 @@ const changeSchedule = (
     }
     /* 야간으로 변경하는 경우 */
     if (workType === 2) {
-      if (day < numDays - 1 && sch[emp][day + 1] != 0) return {};
       if (sch[emp][day] == 0 || sch[emp][day] == 5) wk[emp].workCount++;
 
       if (sch[emp][day] == 1) {
