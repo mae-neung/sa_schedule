@@ -1,13 +1,35 @@
 import useScheduleStore from "./index.ts";
 import Employee from "../../interface/employee.ts";
 
+const CONSECUTIVE_WORK = new Set([1, 2, 3, 7]);
+
+const checkConsecutive = (
+  schedule: number[][],
+  w: number,
+  day: number,
+  numDays: number,
+) => {
+  let back = 0;
+  for (let d = day - 1; d >= 0 && CONSECUTIVE_WORK.has(schedule[w][d]); d--)
+    back++;
+  let fwd = 0;
+  for (
+    let d = day + 1;
+    d < numDays && CONSECUTIVE_WORK.has(schedule[w][d]);
+    d++
+  )
+    fwd++;
+  return back + 1 + fwd <= 4;
+};
+
 const applySchedule = (
   day: number,
   schedule: number[][],
   worker: Employee[],
   aloneCount: number[],
   workCount: number[],
-  groupCount: number[],
+  groupDouble: number[],
+  groupTotal: number[],
   night?: boolean,
 ) => {
   const { numDays, group } = useScheduleStore.getState();
@@ -63,6 +85,11 @@ const applySchedule = (
         (w) => schedule[w][day - 2] !== 2 || schedule[w][day + 2] !== 2,
       );
 
+    // 5일 이상 연속 근무 불가
+    candidates = candidates.filter((w) =>
+      checkConsecutive(schedule, w, day, numDays),
+    );
+
     candidates = candidates.filter(
       (w) => worker[w].workCount < numDays - worker[w].targetWorkCount - 1,
     );
@@ -88,6 +115,7 @@ const applySchedule = (
 
     if (candidates.length > 0) {
       const selected = candidates[0];
+      const gIdx = (33 + group - day) % 4;
       schedule[selected][day] = 2;
       if (day + 1 < numDays) {
         schedule[selected][day + 1] = 3;
@@ -97,11 +125,11 @@ const applySchedule = (
       worker[selected].workCount++;
 
       if (workCount[day] == 1) {
-        groupCount[(33 + group - day) % 4]++;
+        groupTotal[gIdx]++;
         aloneCount[selected]++;
       }
       if (workCount[day] == 2) {
-        groupCount[(33 + group - day) % 4]--;
+        groupDouble[gIdx]++;
         const target = worker.findIndex(
           (_, idx) => idx !== selected && schedule[idx][day] === 2,
         );
@@ -132,16 +160,12 @@ const applySchedule = (
     if (day > 0)
       candidates = candidates.filter((w) => schedule[w][day - 1] !== 3);
 
-    // 6일 이상 연속 근무 불가
-    candidates = candidates.filter((w) => {
-      let back = 0;
-      for (let d = day - 1; d >= 0 && schedule[w][d] === 1; d--) back++;
-      let fwd = 0;
-      for (let d = day + 1; d < numDays && schedule[w][d] === 1; d++) fwd++;
-      return back + 1 + fwd <= 5;
-    });
+    // 5일 이상 연속 근무 불가
+    candidates = candidates.filter((w) =>
+      checkConsecutive(schedule, w, day, numDays),
+    );
 
-    // 목표 휴일 수 초과 방지 + 빈 날만 (relaxed 모드에서는 target 체크 생략)
+    // 목표 휴일 수 초과 방지 + 빈 날만
     candidates = candidates.filter(
       (w) =>
         worker[w].workCount < numDays - worker[w].targetWorkCount &&
@@ -160,15 +184,17 @@ const applySchedule = (
 
     if (candidates.length > 0) {
       const selected = candidates[0];
+      const gIdx = (32 + group - day) % 4;
       schedule[selected][day] = 1;
       worker[selected].workCount++;
       workCount[day]++;
+
       if (workCount[day] == 1) {
-        groupCount[(32 + group - day) % 4]++;
+        groupTotal[gIdx]++;
         aloneCount[selected]++;
       }
       if (workCount[day] == 2) {
-        groupCount[(32 + group - day) % 4]--;
+        groupDouble[gIdx]++;
         const target = worker.findIndex(
           (_, idx) => idx !== selected && schedule[idx][day] == 1,
         );

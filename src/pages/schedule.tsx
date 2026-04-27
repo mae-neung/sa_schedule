@@ -703,7 +703,7 @@ const SchedulePage = () => {
           <Flex flexDir={"column"} gap={2}>
             <Flex align={"center"} justify={"space-between"} cursor={"pointer"} onClick={() => setOpenGroup((v) => !v)}>
               <Text fontSize={"xs"} fontWeight={"600"} color={"fg.subtle"} textTransform={"uppercase"} letterSpacing={"wider"}>
-                조별 1인 근무
+                조별 2인 근무 횟수
               </Text>
               <Box fontSize={"10px"} color={"fg.subtle"} transition={"transform 0.2s"} transform={openGroup ? "rotate(0deg)" : "rotate(-90deg)"}>
                 <DownOutlined />

@@ -1,4 +1,4 @@
-const WORK_TYPES = ["휴", "주", "야", "비", "연", "휴", "특"];
+const WORK_TYPES = ["휴", "주", "야", "비", "연", "휴", "특", "파"];
 const WORK_TYPES_LABEL = [
   "휴무",
   "주간",
@@ -7,6 +7,7 @@ const WORK_TYPES_LABEL = [
   "연가",
   "지정 휴무",
   "특별 휴가",
+  "파견",
 ];
 const BG_TYPES = [
   "#FFE4E6", // 휴 - 연한 핑크
@@ -16,6 +17,7 @@ const BG_TYPES = [
   "#DCFCE7", // 연 - 연한 초록
   "#FEF3C7", // 지정 휴무 - 연한 노랑
   "#F3E8FF", // 특별 휴가 - 연한 보라
+  "#CCFBF1", // 파견 - 연한 청록
 ];
 const COLOR_TYPES = [
   "#E11D48", // 휴 - 로즈
@@ -25,6 +27,7 @@ const COLOR_TYPES = [
   "#15803D", // 연 - 다크 그린
   "#D97706", // 지정 휴무 - 앰버
   "#7C3AED", // 특별 휴가 - 퍼플
+  "#0F766E", // 파견 - 청록
 ];
 const WEEKDAY = ["일", "월", "화", "수", "목", "금", "토"];
 const GROUP = ["A", "B", "C", "D"];
