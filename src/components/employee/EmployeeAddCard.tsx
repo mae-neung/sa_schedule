@@ -1,7 +1,7 @@
 import { Flex, Text } from "@chakra-ui/react";
 import { PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { Button, Modal, Form, Input, Checkbox, InputNumber, Select } from "antd";
+import { Button, Modal, Form, Input, Checkbox, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 import Employee from "../../interface/employee.ts";
 import setWorker from "../../store/schedule/setWorker.ts";
@@ -41,12 +41,10 @@ const EmployeeAddCard = () => {
           onFinish={({
             name,
             isNew,
-            targetWorkCount,
             isNight,
           }: {
             name: string;
             isNew?: boolean;
-            targetWorkCount: number;
             isNight: boolean;
           }) => {
             if (name == "") {
@@ -60,7 +58,7 @@ const EmployeeAddCard = () => {
             const emp: Employee = {
               name,
               workCount: 0,
-              targetWorkCount,
+              targetWorkCount: 0,
               isNight,
               isNew,
             };
@@ -69,7 +67,7 @@ const EmployeeAddCard = () => {
             form.resetFields();
             setOpen(false);
           }}
-          initialValues={{ name: "", targetWorkCount: 10, isNight: false }}
+          initialValues={{ name: "", isNight: false }}
         >
           <Flex flexDir={"column"} gap={2}>
             <Flex flexDir={"column"} gap={2}>
@@ -87,12 +85,6 @@ const EmployeeAddCard = () => {
                     { value: true, label: "야간" },
                   ]}
                 />
-              </Form.Item>
-            </Flex>
-            <Flex flexDir={"column"} gap={2}>
-              <Text fontWeight={"bold"}>목표 근무일</Text>
-              <Form.Item name={"targetWorkCount"} noStyle>
-                <InputNumber style={{ width: "100%" }} />
               </Form.Item>
             </Flex>
             <Flex gap={2} py={2}>

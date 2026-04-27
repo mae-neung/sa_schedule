@@ -2,7 +2,9 @@ import useScheduleStore from "./index.ts";
 import { Dayjs } from "dayjs";
 import resetWorkCount from "./resetWorkCount.ts";
 
-const init = (date: Dayjs, group: number) =>
+const init = (date: Dayjs, group: number) => {
+  localStorage.removeItem("schedule-base");
+
   useScheduleStore.setState((state) => {
     const { worker } = state;
 
@@ -41,5 +43,6 @@ const init = (date: Dayjs, group: number) =>
       isInit: true,
     };
   });
+};
 
 export default init;

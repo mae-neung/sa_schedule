@@ -30,6 +30,10 @@ const changeSchedule = (
 
     /* 야간 설정 시 다음 날 비번으로 설정 */
     if (workType === 2 && day < numDays - 1) {
+      /* 다음 날이 야간이었으면 연계된 비번(day+2)도 초기화 */
+      if (sch[emp][day + 1] === 2 && day + 2 < numDays) {
+        sch[emp][day + 2] = 0;
+      }
       sch[emp][day + 1] = 3;
     }
 
